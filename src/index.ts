@@ -55,7 +55,6 @@ export {
     Spring,
     Keyframes,
     Inertia,
-    Point,
     None,
     EasingFunction,
     TargetAndTransition,
