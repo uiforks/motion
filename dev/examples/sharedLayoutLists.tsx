@@ -19,7 +19,11 @@ const List = ({ list, onItemClick, backgroundColor }: ListProps) => {
             <AnimatePresence>
                 {list.map(id => (
                     <motion.li
-                        style={{ ...styles.item, backgroundColor, z: 2 }}
+                        style={{
+                            ...styles.item,
+                            backgroundColor,
+                            z: 2,
+                        }}
                         key={id}
                         layoutId={id}
                         animate
@@ -49,12 +53,12 @@ export const App = () => {
                 <List
                     list={lists[0]}
                     onItemClick={id => moveItem(id, 1, lists, setLists)}
-                    backgroundColor="red"
+                    backgroundColor="#ff3366"
                 />
                 <List
                     list={lists[1]}
                     onItemClick={id => moveItem(id, 0, lists, setLists)}
-                    backgroundColor="blue"
+                    backgroundColor="#0099ff"
                 />
             </div>
         </AnimateSharedLayout>

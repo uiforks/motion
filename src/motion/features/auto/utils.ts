@@ -350,9 +350,8 @@ const defaultHandler: TransitionHandler = {
     startAnimation: child => child.startAnimation(),
 }
 
-// const isPresent = (child: Auto) => child.isPresent()
-// const isExiting = (child: Auto) => !isPresent(child)
-// const isExitingRoot = (child: Auto) => !isPresent(child)
+const isPresent = (child: Auto) => child.isPresent()
+const isExiting = (child: Auto) => !isPresent(child)
 
 export const batchTransitions = (): SharedBatchTree => {
     const queue = new Set<Auto>()
@@ -366,29 +365,17 @@ export const batchTransitions = (): SharedBatchTree => {
         if (!queue.size) return
 
         const order = Array.from(queue).sort(sortByDepth)
+        const exiting = order.filter(isExiting)
 
+        // Snapshot the position of all the exiting components, so we can
+        // use these bounding boxes to calculate their width and height
+        exiting.forEach(child => child.snapshotTarget())
+
+        // Reset all styles to figure out where everything would be laid out
         order.forEach(child => child.resetStyles())
+
+        // Snapshot all present components in their new layout positions
         order.forEach(snapshotTarget)
-
-        // const present = order.filter(isPresent)
-        // const exiting = order.filter(isExiting)
-        // const exitingRoots = exiting.filter(isExitingRoot)
-
-        // // Snapshot the position of all the exiting components, as we will use
-        // // these bounding boxes to project into
-        // exiting.forEach(child => child.snapshotTarget())
-
-        // // Reset all styles to figure out where everything would be laid out
-        // order.forEach(child => child.resetStyles())
-
-        // // For each exiting root, we use the snapshot information to pop from the document flow.
-        // // TODO: We actually probably want to loop through all children and checking if we're popped and still exiting
-        // exitingRoots.forEach(child => child.popFromFlow())
-
-        // // TODO: Reset snapshot origin?
-
-        // // Snapshot all present components in their new layout positions
-        // present.forEach(snapshotTarget)
 
         // Start the layout animations
         order.forEach(startAnimation)

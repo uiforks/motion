@@ -19,7 +19,7 @@ const ContentRow = styled(motion.div)`
     height: 8px;
     background-color: #999;
     border-radius: 10px;
-    margin-top: 12px;
+    margin-bottom: 12px;
 `
 const List = styled(motion.div)`
     width: 240px;
@@ -54,29 +54,17 @@ function Item({ isOpen, onClick, i }: ItemProps) {
         <Container
             animate
             onClick={onClick}
-            transition={{ duration: 2 }}
+            transition={{ duration: 20 }}
             isOpen={isOpen}
             id="container"
         >
-            <Image id="image" animate transition={{ duration: 2 }} />
+            <Image id="image" animate transition={{ duration: 20 }} />
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div animate>
-                        <ContentRow
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                        />
-                        <ContentRow
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                        />
-                        <ContentRow
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                        />
+                    <motion.div animate debugId="content">
+                        <ContentRow />
+                        <ContentRow />
+                        <ContentRow />
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -89,7 +77,7 @@ export const App = () => {
     const [open, setIsOpen] = useState<false | number>(false)
 
     return (
-        <AnimateSharedLayout>
+        <AnimateSharedLayout transition={{ duration: 20 }}>
             <List animate>
                 {items.map(id => (
                     <Item

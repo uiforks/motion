@@ -61,7 +61,6 @@ export const useMotionContext = (
 ) => {
     const presenceContext = useContext(PresenceContext)
     const presenceId = presenceContext?.id
-    const isPresenceRoot = parentContext.presenceId !== presenceId
 
     // Override initial with that from a parent context, if defined
     if (presenceContext?.initial !== undefined) {
@@ -147,7 +146,6 @@ export const useMotionContext = (
             layoutDelta,
             layoutDeltas: layoutDeltas.current,
             layoutProgress,
-            isPresenceRoot,
         }),
         [
             initialDependency,
@@ -155,7 +153,6 @@ export const useMotionContext = (
             parentContext.isReducedMotion,
             animate,
             layoutId,
-            presenceId,
         ]
     )
 

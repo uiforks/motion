@@ -25,7 +25,7 @@ import {
 } from "../../../components/AnimateSharedLayout/types"
 import { MotionValue } from "../../../value"
 import { syncRenderSession } from "../../../dom/sync-render-session"
-import { TargetAndTransition } from "../../../types"
+import { TargetAndTransition, Target } from "../../../types"
 import { startAnimation } from "../../../animation/utils/transitions"
 import { mix } from "@popmotion/popcorn"
 import {
@@ -203,6 +203,11 @@ export class Auto extends React.Component<FeatureProps & ContextProps> {
      */
     presence: Presence
 
+    /**
+     * Track whether we've popped this component from the document flow
+     */
+    isInLayoutFlow: boolean = false
+
     constructor(props: FeatureProps & ContextProps) {
         super(props)
 
@@ -283,6 +288,10 @@ export class Auto extends React.Component<FeatureProps & ContextProps> {
             (hasDependency && dependencyHasChanged) ||
             presenceHasChanged
 
+        // if (nextProps.animate !== true && nextProps.layoutId === undefined) {
+        //     this.shouldAnimate = false
+        // }
+
         return true
     }
 
@@ -308,9 +317,42 @@ export class Auto extends React.Component<FeatureProps & ContextProps> {
      * Reset styles that we might be currently animating so we can read their target values from the DOM.
      */
     resetStyles() {
-        const { animate, nativeElement, style = {} } = this.props
+        const {
+            animate,
+            nativeElement,
+            layoutId,
+            style = {},
+            parentContext,
+            localContext,
+        } = this.props
+        const isPresenceRoot =
+            parentContext.presenceId !== localContext.presenceId
 
-        const reset = resetStyles(style, this.supportedAutoValues)
+        let reset: Target = {}
+
+        if (animate === true || layoutId !== undefined) {
+            reset = resetStyles(style, this.supportedAutoValues)
+        }
+
+        if (isPresenceRoot) {
+            if (this.isPresent() && !this.isInLayoutFlow) {
+                this.isInLayoutFlow = true
+                reset = {
+                    ...reset,
+                    ...resetStyles(style, layoutResetValues),
+                } as Target
+            } else if (!this.isPresent()) {
+                const { position } = this.measuredTarget.style
+                const { x, y } = this.measuredTarget.layout
+
+                if (position !== "absolute" && position !== "fixed") {
+                    this.isInLayoutFlow = false
+                    reset.position = "absolute"
+                    reset.width = x.max - x.min
+                    reset.height = y.max - y.min
+                }
+            }
+        }
 
         // If we're animating opacity separately, we don't want to reset
         // as it causes a visual flicker when adding the component
@@ -357,24 +399,6 @@ export class Auto extends React.Component<FeatureProps & ContextProps> {
 
         this.measuredTarget = target
     }
-
-    popFromFlow() {
-        const { nativeElement } = this.props
-        const { position } = this.measuredTarget.style
-
-        if (position === "absolute" || position === "fixed") return
-
-        const { x, y } = this.measuredTarget.layout
-
-        nativeElement.setStyle({
-            position: "absolute",
-            width: x.max - x.min,
-            height: y.max - y.min,
-        })
-
-        nativeElement.render()
-    }
-
     /**
      * Hide this component using opacity. We can't set it to display: none as we might
      * still need to measure it or its children.
@@ -453,11 +477,10 @@ export class Auto extends React.Component<FeatureProps & ContextProps> {
             this.delta.isVisible &&
             isTreeVisible(parentDeltas)
         ) {
-            // if (this.props.id === "content")
-            //     console.log(
-            //         this.visualOrigin.layout.x,
-            //         this.visualTarget.layout.x
-            //     )
+            if (!this.isPresent() && !this.isInLayoutFlow && !target) {
+                this.visualTarget = this.visualOrigin
+            }
+
             syncRenderSession.open()
 
             animations = [
@@ -723,4 +746,10 @@ export class Auto extends React.Component<FeatureProps & ContextProps> {
     render() {
         return null
     }
+}
+
+const layoutResetValues = {
+    position: {},
+    width: {},
+    height: {},
 }
