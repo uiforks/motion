@@ -1,15 +1,9 @@
 /**
  * Components
  */
-export { motion, useExternalRef, createMotionComponent } from "./motion"
+export { motion } from "./render/dom"
 export { AnimatePresence } from "./components/AnimatePresence"
 export { AnimateSharedLayout } from "./components/AnimateSharedLayout"
-export {
-    HTMLMotionProps,
-    SVGMotionProps,
-    SVGAttributesAsMotionValues,
-    ForwardRefComponent,
-} from "./motion/types"
 
 /**
  * Motion values
@@ -30,7 +24,6 @@ export {
     animationControls,
 } from "./animation/AnimationControls"
 export { useAnimation } from "./animation/use-animation"
-export { useAnimatedState } from "./animation/use-animated-state"
 export {
     HoverHandlers,
     TapHandlers,
@@ -46,9 +39,15 @@ export { transform } from "./utils/transform"
 export { useReducedMotion } from "./utils/use-reduced-motion"
 export { ReducedMotion } from "./components/ReducedMotion"
 export { isValidMotionProp } from "./motion/utils/valid-prop"
-export { usePresence } from "./components/AnimatePresence/use-presence"
+export {
+    usePresence,
+    useIsPresent,
+} from "./components/AnimatePresence/use-presence"
 export { useDragControls, DragControls } from "./behaviours/use-drag-controls"
 export { useDomEvent } from "./events/use-dom-event"
+export { useExternalRef } from "./motion/utils/use-external-ref"
+export { createMotionComponent } from "./motion"
+export { useAnimatedState } from "./animation/use-animated-state"
 
 /**
  * Contexts
@@ -66,6 +65,12 @@ export { AnimatePresenceProps } from "./components/AnimatePresence/types"
  * Types
  */
 export {
+    HTMLMotionProps,
+    SVGMotionProps,
+    SVGAttributesAsMotionValues,
+    ForwardRefComponent,
+} from "./render/dom/types"
+export {
     AnimationProps,
     MotionProps,
     MotionCallbacks,
@@ -76,6 +81,7 @@ export {
     RelayoutInfo,
     ResolveLayoutTransition,
 } from "./motion/types"
+export { VisualElementAnimationControls } from "./animation/VisualElementAnimationControls"
 export {
     Orchestration,
     Tween,

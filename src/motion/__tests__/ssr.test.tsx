@@ -1,6 +1,6 @@
 import * as React from "react"
 import { renderToString } from "react-dom/server"
-import { motion } from "../"
+import { motion } from "../../"
 import { motionValue } from "../../value"
 import { AnimatePresence } from "../../components/AnimatePresence"
 
@@ -71,7 +71,7 @@ describe("ssr", () => {
         )
 
         expect(circle).toBe(
-            '<circle cx="100" style="background:#fff;transform:translateX(100px);transform-origin:0px 0px" stroke-width="10"></circle>'
+            '<circle cx="100" style="background:#fff" stroke-width="10"></circle>'
         )
     })
 })

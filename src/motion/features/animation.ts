@@ -5,27 +5,32 @@ import { useAnimateProp } from "../../animation/use-animate-prop"
 import { useVariants } from "../../animation/use-variants"
 import { useAnimationGroupSubscription } from "../../animation/use-animation-group-subscription"
 import { AnimationControls } from "../../animation/AnimationControls"
-import { ValueAnimationControls } from "../../animation/ValueAnimationControls"
-import { MotionValuesMap } from "../utils/use-motion-values"
+import { VisualElementAnimationControls } from "../../animation/VisualElementAnimationControls"
 import { TargetAndTransition } from "../../types"
+import { VisualElement } from "../../render/VisualElement"
 
 interface AnimationFeatureProps {
     initial: MotionProps["initial"]
     animate: MotionProps["animate"]
     transition: MotionProps["transition"]
     variants: MotionProps["variants"]
-    controls: ValueAnimationControls
-    values: MotionValuesMap
+    controls: VisualElementAnimationControls
+    visualElement: VisualElement
     inherit: boolean
 }
 
 export const AnimatePropComponents = {
     [AnimatePropType.Target]: makeRenderlessComponent<AnimationFeatureProps>(
-        ({ animate, controls, values, transition }: AnimationFeatureProps) => {
+        ({
+            animate,
+            controls,
+            visualElement,
+            transition,
+        }: AnimationFeatureProps) => {
             return useAnimateProp(
                 animate as TargetAndTransition,
                 controls,
-                values,
+                visualElement,
                 transition
             )
         }

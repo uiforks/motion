@@ -1,4 +1,3 @@
-import { MotionValuesMap } from "../motion/utils/use-motion-values"
 import { motionValue, MotionValue } from "../value"
 import { complex } from "style-value-types"
 import {
@@ -13,10 +12,11 @@ import {
 } from "../types"
 import { VariantLabels, MotionProps } from "../motion/types"
 import { resolveFinalValueInKeyframes } from "../utils/resolve-value"
-import { getValueType } from "../dom/value-types"
 import { startAnimation } from "./utils/transitions"
 import { invariant } from "hey-listen"
 import { isNumericalString } from "../utils/is-numerical-string"
+import { VisualElement } from "../render/VisualElement"
+import { findValueType } from "../render/dom/utils/value-types"
 
 export type AnimationDefinition =
     | VariantLabels
@@ -35,29 +35,28 @@ type SetterOptions = {
 }
 
 /**
- * Get the current value of every `MotionValue`
- * @param values -
+ * Get the current value of every `MotionValue` in a `VisualElement`
  */
-const getCurrent = (values: MotionValuesMap) => {
+const getCurrent = (visualElement: VisualElement) => {
     const current = {}
-    values.forEach((value, key) => (current[key] = value.get()))
+    visualElement.forEachValue((value, key) => (current[key] = value.get()))
     return current
 }
 
 /**
- * Get the current velocity of every `MotionValue`
- * @param values -
+ * Get the current velocity of every `MotionValue` in a `VisualElement`
  */
-const getVelocity = (values: MotionValuesMap) => {
+const getVelocity = (visualElement: VisualElement) => {
     const velocity = {}
-    values.forEach((value, key) => (velocity[key] = value.getVelocity()))
+    visualElement.forEachValue(
+        (value, key) => (velocity[key] = value.getVelocity())
+    )
     return velocity
 }
 
 /**
  * Check if value is a function that returns a `Target`. A generic typeof === 'function'
  * check, just helps with typing.
- * @param p -
  */
 const isTargetResolver = (p: any): p is TargetResolver => {
     return typeof p === "function"
@@ -71,6 +70,7 @@ const isVariantLabels = (v: any): v is string[] => Array.isArray(v)
 export type ReadValueFromSource = (key: string) => number | string
 
 export type MakeTargetAnimatable = (
+    visualElement: VisualElement,
     target: TargetWithKeyframes,
     origin?: Target,
     transitionEnd?: Target
@@ -80,9 +80,7 @@ export type MakeTargetAnimatable = (
     transitionEnd?: Target
 }
 
-export interface ValueAnimationConfig {
-    values: MotionValuesMap
-    readValueFromSource: ReadValueFromSource
+export interface AnimationControlsConfig {
     makeTargetAnimatable?: MakeTargetAnimatable
 }
 
@@ -91,18 +89,18 @@ export interface ValueAnimationConfig {
  *
  * @internal
  */
-export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
+export class VisualElementAnimationControls<
+    P extends {} = {},
+    V extends {} = {}
+> {
+    private visualElement: VisualElement
+
     /**
      * A reference to the component's latest props. We could probably ditch this in
      * favour to a reference to the `custom` prop now we don't send all props through
      * to target resolvers.
      */
     private props: P & MotionProps = {} as P
-
-    /**
-     * A reference to the component's motion values
-     */
-    private values: MotionValuesMap
 
     /**
      * The default transition to use for `Target`s without any `transition` prop.
@@ -137,7 +135,7 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
     /**
      * A Set of children component controls for variant propagation.
      */
-    private children?: Set<ValueAnimationControls>
+    private children?: Set<VisualElementAnimationControls>
 
     /**
      * A Set of value keys that are currently animating.
@@ -145,26 +143,18 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
     private isAnimating: Set<string> = new Set()
 
     /**
-     * In the event we attempt to animate a value that doesn't exist yet, we use this
-     * function to attempt to read it from the source (ie the DOM, or React state etc)
-     */
-    private readValueFromSource: ReadValueFromSource
-
-    /**
      * A chance
      */
     private makeTargetAnimatable: MakeTargetAnimatable | undefined
 
-    constructor({
-        values,
-        readValueFromSource,
-        makeTargetAnimatable,
-    }: ValueAnimationConfig) {
-        this.values = values
-        this.readValueFromSource = readValueFromSource
+    constructor(
+        visualElement: VisualElement,
+        { makeTargetAnimatable }: AnimationControlsConfig
+    ) {
+        this.visualElement = visualElement
         this.makeTargetAnimatable = makeTargetAnimatable
 
-        this.values.forEach(
+        this.visualElement.forEachValue(
             (value, key) => (this.baseTarget[key] = value.get())
         )
     }
@@ -211,11 +201,11 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
             isActive.add(key)
             if (target) {
                 const targetValue = resolveFinalValueInKeyframes(target[key])
-                if (this.values.has(key)) {
-                    const value = this.values.get(key)
+                if (this.visualElement.hasValue(key)) {
+                    const value = this.visualElement.getValue(key)
                     value && value.set(targetValue)
                 } else {
-                    this.values.set(key, motionValue(targetValue))
+                    this.visualElement.addValue(key, motionValue(targetValue))
                 }
 
                 if (!priority) this.baseTarget[key] = targetValue
@@ -266,7 +256,7 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
             // value from the DOM. It might be worth investigating whether to check props (for SVG)
             // or props.style (for HTML) if the value exists there before attempting to read.
             if (value === null) {
-                value = this.readValueFromSource(key)
+                value = this.visualElement.readNativeValue(key)
 
                 invariant(
                     value !== null,
@@ -277,21 +267,21 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
             if (typeof value === "string" && isNumericalString(value)) {
                 // If this is a number read as a string, ie "0" or "200", convert it to a number
                 value = parseFloat(value)
-            } else if (!getValueType(value) && complex.test(targetValue)) {
+            } else if (!findValueType(value) && complex.test(targetValue)) {
                 // If value is not recognised as animatable, ie "none", create an animatable version origin based on the target
                 value = complex.getAnimatableNone(targetValue as string)
             }
 
-            this.values.set(key, motionValue(value))
+            this.visualElement.addValue(key, motionValue(value))
             this.baseTarget[key] = value
         }
     }
 
     /**
-     * Check if the associated `MotionValueMap` has a key with the provided string.
+     * Check if the associated `VisualElement` has a key with the provided string.
      * Pre-bound to the class so we can provide directly to the `filter` in `checkForNewValues`.
      */
-    private hasValue = (key: string) => !this.values.has(key)
+    private hasValue = (key: string) => !this.visualElement.hasValue(key)
 
     /**
      * Resolve a variant from its label or resolver into an actual `Target` we can animate to.
@@ -316,8 +306,8 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
             // resolve current and velocity
             variant = variant(
                 this.props.custom,
-                getCurrent(this.values),
-                getVelocity(this.values)
+                getCurrent(this.visualElement),
+                getVelocity(this.visualElement)
             )
         }
 
@@ -491,11 +481,16 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
         this.checkForNewValues(target)
 
         const origin = this.transformValues(
-            getOrigin(target as any, transition as any, this.values) as any
+            getOrigin(
+                target as any,
+                transition as any,
+                this.visualElement
+            ) as any
         )
 
         if (this.makeTargetAnimatable) {
             const animatable = this.makeTargetAnimatable(
+                this.visualElement,
                 target,
                 origin,
                 transitionEnd as any
@@ -513,7 +508,9 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
         const animations: Array<Promise<any>> = []
 
         for (const key in target) {
-            const value = this.values.get(key) as MotionValue<number | string>
+            const value = this.visualElement.getValue(key) as MotionValue<
+                number | string
+            >
 
             if (!value || !target || target[key] === undefined) continue
 
@@ -666,14 +663,14 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
     }
 
     stop() {
-        this.values.forEach(value => value.stop())
+        this.visualElement.forEachValue(value => value.stop())
     }
 
     /**
      * Add the controls of a child component.
      * @param controls -
      */
-    addChild(controls: ValueAnimationControls) {
+    addChild(controls: VisualElementAnimationControls) {
         if (!this.children) {
             this.children = new Set()
         }
@@ -686,7 +683,7 @@ export class ValueAnimationControls<P extends {} = {}, V extends {} = {}> {
         })
     }
 
-    removeChild(controls: ValueAnimationControls) {
+    removeChild(controls: VisualElementAnimationControls) {
         if (!this.children) {
             return
         }
@@ -708,13 +705,14 @@ function getOriginFromTransition(key: string, transition: Transition) {
 function getOrigin(
     target: Target,
     transition: Transition,
-    values: MotionValuesMap
+    visualElement: VisualElement
 ) {
     const origin: Target = {}
 
     for (const key in target) {
         origin[key] =
-            getOriginFromTransition(key, transition) ?? values.get(key)?.get()
+            getOriginFromTransition(key, transition) ??
+            visualElement.getValue(key)?.get()
     }
 
     return origin

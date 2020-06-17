@@ -1,5 +1,4 @@
 import {
-    safeSize,
     calcOrigin,
     calcTranslate,
     calcDelta,
@@ -15,40 +14,6 @@ import {
     fixTransparentRGBPair,
 } from "../utils"
 import { Axis, AxisBox2D } from "../../../../types/geometry"
-
-describe("safeSize", () => {
-    test("should return large bounding boxes as provided", () => {
-        expect(
-            safeSize({
-                top: 0,
-                left: 100,
-                bottom: 100,
-                right: 200,
-            })
-        ).toEqual({
-            top: 0,
-            left: 100,
-            bottom: 100,
-            right: 200,
-        })
-    })
-
-    test("should return small bounding boxes as 1x1px min", () => {
-        expect(
-            safeSize({
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0,
-            })
-        ).toEqual({
-            top: -0.5,
-            left: -0.5,
-            bottom: 0.5,
-            right: 0.5,
-        })
-    })
-})
 
 test("scaledPoint", () => {
     expect(
