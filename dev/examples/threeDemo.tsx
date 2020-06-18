@@ -1,81 +1,75 @@
 import * as React from "react"
 import { useState } from "react"
 import { motion } from "../../src/render/three"
-import { AnimatePresence } from "@framer"
-import { Canvas, useFrame } from "react-three-fiber"
+import { Canvas } from "react-three-fiber"
+import { OrbitControls } from "drei"
 
-function Box(props) {
-    const mesh = React.useRef()
-    const [hovered, setHover] = React.useState(false)
-    const [active, setActive] = React.useState(false)
-
-    useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01))
-
+function Orb(props) {
     return (
-        <mesh
-            {...props}
-            ref={mesh}
-            scale={active ? [1.5, 1.5, 1.5] : [1, 1, 1]}
-            onClick={e => setActive(!active)}
-            onPointerOver={e => setHover(true)}
-            onPointerOut={e => setHover(false)}
-        >
-            <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
-            <meshStandardMaterial
-                attach="material"
-                color={hovered ? "hotpink" : "orange"}
-            />
-        </mesh>
+        <motion.mesh {...props}>
+            <meshBasicMaterial attach="material" />
+            <sphereBufferGeometry attach="geometry" args={[1, 50, 50]} />
+        </motion.mesh>
     )
 }
 
-const variants = {
-    big: { scale: 2, rotateX: 0, rotateY: 0, color: "#0066FF" },
-    small: {
-        scale: 1,
-        rotateX: 1,
-        rotateY: 1,
-        opacity: 1.0,
-        color: "#0099FF",
-    },
-    gone: {
-        scale: 0,
-        rotateX: -1,
-        rotateY: -1,
-        opacity: 0.0,
-        color: "#FFFFFF",
-    },
+const getOrbs = () => {
+    let i = 0
+    const circleDensity = 24
+    const circles = 20
+    const orbs = []
+
+    for (let z = 5; z < circles; z++)
+        for (let c = 0; c < circleDensity; c++) {
+            const id = i++
+            const r = 1
+            const x = 0 + r * Math.cos((2 * Math.PI * c) / circleDensity)
+            const y = 0 + r * Math.sin((2 * Math.PI * c) / circleDensity)
+            orbs.push({
+                x: x * z,
+                y: y * z,
+                z: z * -0.2 * Math.random(),
+                scale: (circles - z) * -0.5 * (Math.random() * 0.2) + 0.3,
+            })
+        }
+
+    return orbs
 }
 
+const orbs = getOrbs()
+
 export const App = () => {
-    const [hovered, setHover] = React.useState(false)
-    const [show, setShow] = useState(true)
-
+    const [active, setActive] = useState(true)
     return (
-        <Canvas colorManagement style={{ width: "100vw", height: "100vh" }}>
-            <mesh position={[2, 0, 0]} onClick={() => setShow(!show)}>
-                <meshBasicMaterial attach="material" />
-                <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
-            </mesh>
+        <Canvas
+            colorManagement
+            style={{ width: "100vw", height: "100vh" }}
+            gl={{ antialias: false, alpha: false }}
+            camera={{ position: [0, 0, 25], near: 5, far: 30 }}
+            onCreated={({ gl }) => gl.setClearColor("#9966ff")}
+            onClick={() => setActive(!active)}
+        >
+            <ambientLight />
+            <pointLight position={[150, 150, 150]} intensity={0.55} />
 
-            <motion.group>
-                <motion.mesh
-                    onPointerOver={() => setHover(true)}
-                    onPointerOut={() => setHover(false)}
-                    variants={variants}
-                    initial={"gone"}
-                    animate={show ? (hovered ? "big" : "small") : "gone"}
-                    transition={{ damping: 120 }}
-                >
-                    <meshBasicMaterial attach="material" transparent />
-                    <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
-                </motion.mesh>
-            </motion.group>
+            <group>
+                {orbs.map(orb => {
+                    const { x, y, z, scale } = orb
+                    return (
+                        <Orb
+                            animate={{
+                                x: active ? x : 0,
+                                y: active ? y : 0,
+                                z: active ? z : 0,
+                                scale: active ? scale : 0,
+                            }}
+                            transition={{ damping: 50 }}
+                        />
+                    )
+                })}
+            </group>
 
-            {/* <ambientLight />
-            <pointLight position={[10, 10, 10]} />
-            <Box position={[-1.2, 0, 0]} />
-            <Box position={[1.2, 0, 0]} /> */}
+            <OrbitControls />
         </Canvas>
     )
 }
