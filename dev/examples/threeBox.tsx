@@ -1,5 +1,6 @@
 import * as React from "react"
-import { motion } from "@framer"
+import { motion } from "../../src/render/three"
+import { AnimatePresence } from "@framer"
 import { Canvas, useFrame } from "react-three-fiber"
 
 function Box(props) {
@@ -27,22 +28,40 @@ function Box(props) {
     )
 }
 
+const variants = {
+    big: { scale: 2, rotateX: 0, rotateY: 0 },
+    small: {
+        scale: 1,
+        rotateX: 1,
+        rotateY: 1,
+    },
+    gone: { scale: 0 },
+}
+
 export const App = () => {
     const [hovered, setHover] = React.useState(false)
 
     return (
-        <Canvas colorManagement>
-            <motion.mesh
-                x={1}
-                onPointerOver={e => setHover(true)}
-                onPointerOut={e => setHover(false)}
-            >
-                <meshBasicMaterial
-                    attach="material"
-                    color={hovered ? "hotpink" : "orange"}
-                />
-                <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
-            </motion.mesh>
+        <Canvas colorManagement style={{ width: "100vw", height: "100vh" }}>
+            <AnimatePresence>
+                <motion.group
+                    variants={variants}
+                    initial={"small"}
+                    animate={hovered ? "big" : "small"}
+                    transition={{ duration: 8 }}
+                >
+                    <motion.mesh
+                        onPointerOver={e => setHover(true)}
+                        onPointerOut={e => setHover(false)}
+                        animate={{ color: hovered ? "orange" : "hotpink" }}
+                        transition={{ duration: 8 }}
+                    >
+                        <meshBasicMaterial attach="material" />
+                        <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
+                    </motion.mesh>
+                </motion.group>
+            </AnimatePresence>
+
             {/* <ambientLight />
             <pointLight position={[10, 10, 10]} />
             <Box position={[-1.2, 0, 0]} />

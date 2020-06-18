@@ -29,11 +29,11 @@ export function render<Props>(
     visualElement.build()
 
     // Generate props to visually render this component
-    const visualProps = buildThreeProps(visualElement as any)
+    // const visualProps = buildThreeProps(visualElement as any)
 
     return createElement<any>(Component, {
         ...forwardedProps,
         ref: visualElement.ref,
-        ...visualProps,
+        // ...visualProps,
     })
 }
