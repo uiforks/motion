@@ -1,4 +1,5 @@
 import * as React from "react"
+import { motion } from "@framer"
 import { Canvas, useFrame } from "react-three-fiber"
 
 function Box(props) {
@@ -27,12 +28,25 @@ function Box(props) {
 }
 
 export const App = () => {
+    const [hovered, setHover] = React.useState(false)
+
     return (
         <Canvas colorManagement>
-            <ambientLight />
+            <motion.mesh
+                x={1}
+                onPointerOver={e => setHover(true)}
+                onPointerOut={e => setHover(false)}
+            >
+                <meshBasicMaterial
+                    attach="material"
+                    color={hovered ? "hotpink" : "orange"}
+                />
+                <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
+            </motion.mesh>
+            {/* <ambientLight />
             <pointLight position={[10, 10, 10]} />
             <Box position={[-1.2, 0, 0]} />
-            <Box position={[1.2, 0, 0]} />
+            <Box position={[1.2, 0, 0]} /> */}
         </Canvas>
     )
 }
