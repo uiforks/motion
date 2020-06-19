@@ -1,10 +1,10 @@
 import * as React from "react"
 import * as THREE from "three"
-import { useCallback, useState, useEffect, Suspense } from "react"
+import { useCallback, useState, useEffect, Suspense, useRef } from "react"
 import { motion } from "../../src/render/three"
 import { AnimatePresence } from "@framer"
-import { Canvas } from "react-three-fiber"
-import { OrbitControls } from "drei"
+import { Canvas, useFrame } from "react-three-fiber"
+import { OrbitControls, StandardEffects } from "drei"
 import { Asset } from "./framerLogo"
 
 const GOLDEN_RATIO = (Math.sqrt(5) + 1) / 2 - 1
@@ -19,6 +19,18 @@ const primitives = [
     <torusBufferGeometry attach="geometry" args={[0.1, 0.02, 12, 16]} />,
     <torusKnotBufferGeometry attach="geometry" args={[0.1, 0.02, 42, 16]} />,
 ]
+
+function Shape(props) {
+    const mesh = useRef()
+
+    useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01))
+
+    return (
+        <motion.mesh ref={mesh} {...props}>
+            {props.children}
+        </motion.mesh>
+    )
+}
 
 export const App = () => {
     const [meshes, setMeshes] = useState(Array.from(Array(40).keys()))
@@ -118,7 +130,7 @@ export const App = () => {
                         const z = index * -0.1
 
                         return (
-                            <motion.mesh
+                            <Shape
                                 key={mesh}
                                 initial={{
                                     opacity: 0,
@@ -154,7 +166,7 @@ export const App = () => {
                                         args={[0.1, 32, 32]}
                                     />
                                 )}
-                            </motion.mesh>
+                            </Shape>
                         )
                     })}
             </AnimatePresence>
