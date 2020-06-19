@@ -145,7 +145,7 @@ export const App = () => {
                                     <meshBasicMaterial attach="material" />
                                 )}
                                 {orbit ? (
-                                    primitives[index % primitives.length]
+                                    primitives[mesh % primitives.length]
                                 ) : (
                                     <sphereBufferGeometry
                                         attach="geometry"
