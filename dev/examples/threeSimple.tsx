@@ -9,6 +9,20 @@ import { OrbitControls } from "drei"
 const GOLDEN_RATIO = (Math.sqrt(5) + 1) / 2 - 1
 const GOLDEN_ANGLE = GOLDEN_RATIO * (2 * Math.PI)
 
+const primitives = [
+    <sphereBufferGeometry attach="geometry" args={[0.1, 12, 12]} />,
+    <coneBufferGeometry attach="geometry" args={[0.1, 0.1, 8]} />,
+    <icosahedronBufferGeometry attach="geometry" args={[0.1]} />,
+    <octahedronBufferGeometry attach="geometry" args={[0.1]} />,
+    <boxBufferGeometry attach="geometry" args={[0.1, 0.1, 0.1]} />,
+    <torusBufferGeometry attach="geometry" args={[0.1, 0.02, 6, 12]} />,
+    <torusKnotBufferGeometry attach="geometry" args={[0.1, 0.02, 26, 12]} />,
+]
+
+const getRandomPrimitive = () => {
+    return primitives[Math.floor(Math.random() * primitives.length)]
+}
+
 export const App = () => {
     const [meshes, setMeshes] = useState([])
     const [orbit, setOrbit] = useState(false)
@@ -35,7 +49,7 @@ export const App = () => {
     }, [])
 
     const handleOrbit = useCallback(() => {
-        setOrbit(true)
+        setOrbit(latestOrbit => !latestOrbit)
     }, [])
 
     return (
@@ -114,10 +128,14 @@ export const App = () => {
                             ) : (
                                 <meshBasicMaterial attach="material" />
                             )}
-                            <sphereBufferGeometry
-                                attach="geometry"
-                                args={[0.1, 12, 12]}
-                            />
+                            {orbit ? (
+                                getRandomPrimitive()
+                            ) : (
+                                <sphereBufferGeometry
+                                    attach="geometry"
+                                    args={[0.1, 12, 12]}
+                                />
+                            )}
                         </motion.mesh>
                     )
                 })}
