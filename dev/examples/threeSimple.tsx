@@ -11,13 +11,13 @@ const GOLDEN_RATIO = (Math.sqrt(5) + 1) / 2 - 1
 const GOLDEN_ANGLE = GOLDEN_RATIO * (2 * Math.PI)
 
 const primitives = [
-    <sphereBufferGeometry attach="geometry" args={[0.1, 12, 12]} />,
-    <coneBufferGeometry attach="geometry" args={[0.1, 0.1, 8]} />,
+    <sphereBufferGeometry attach="geometry" args={[0.1, 16, 16]} />,
+    <coneBufferGeometry attach="geometry" args={[0.1, 0.1, 16]} />,
     <icosahedronBufferGeometry attach="geometry" args={[0.1]} />,
     <octahedronBufferGeometry attach="geometry" args={[0.1]} />,
     <boxBufferGeometry attach="geometry" args={[0.1, 0.1, 0.1]} />,
-    <torusBufferGeometry attach="geometry" args={[0.1, 0.02, 6, 12]} />,
-    <torusKnotBufferGeometry attach="geometry" args={[0.1, 0.02, 26, 12]} />,
+    <torusBufferGeometry attach="geometry" args={[0.1, 0.02, 12, 16]} />,
+    <torusKnotBufferGeometry attach="geometry" args={[0.1, 0.02, 42, 16]} />,
 ]
 
 export const App = () => {
@@ -105,7 +105,7 @@ export const App = () => {
                 ) : (
                     <meshBasicMaterial attach="material" />
                 )}
-                <sphereBufferGeometry attach="geometry" args={[0.6, 16, 16]} />
+                <sphereBufferGeometry attach="geometry" args={[0.6, 32, 32]} />
             </motion.mesh>
             <AnimatePresence>
                 {showMeshes &&
@@ -149,7 +149,7 @@ export const App = () => {
                                 ) : (
                                     <sphereBufferGeometry
                                         attach="geometry"
-                                        args={[0.1, 12, 12]}
+                                        args={[0.1, 32, 32]}
                                     />
                                 )}
                             </motion.mesh>
