@@ -21,8 +21,9 @@ function SimpleThree() {
         <motion.group
             variants={variants}
             initial={"hide"}
-            animate={"big"}
+            animate={active ? "big" : "show"}
             transition={transition}
+            onClick={() => setActive(!active)}
         >
             <primitive object={gltf.scene} dispose={null} />
         </motion.group>
