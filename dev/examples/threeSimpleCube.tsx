@@ -1,42 +1,46 @@
 import * as React from "react"
 import * as THREE from "three"
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { motion } from "../../src/render/three"
 import { Canvas } from "react-three-fiber"
 import { OrbitControls } from "drei"
-import { rectShape, extrudeSettings } from "./threeHelpers"
+import { useLoader } from "react-three-fiber"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 function SimpleThree() {
+    const gltf = useLoader(GLTFLoader, "/framerLogo.gltf")
     const [active, setActive] = useState(false)
 
     const variants = {
-        hide: { scale: 0, rotate: -6 },
-        show: { scale: 0.5, rotate: 0 },
-        big: { scale: 1, rotate: -6 },
+        hide: { scale: 0, rotate: -6, y: 0 },
+        show: { scale: 5, rotate: 0, rotateY: 0, y: -2 },
+        big: { scale: 10, rotate: 0, rotateY: 6, y: -6 },
     }
 
     return (
-        <>
-            <motion.mesh
-                variants={variants}
-                initial={"hide"}
-                animate={active ? "big" : "show"}
-                transition={{
-                    type: "spring",
-                    stiffness: 60,
-                    damping: 20,
-                }}
-                onClick={() => setActive(!active)}
-            >
-                <extrudeBufferGeometry
-                    attach="geometry"
-                    args={[rectShape, extrudeSettings]}
-                />
-                <meshDepthMaterial attach="material" />
-            </motion.mesh>
-        </>
+        <motion.group
+            variants={variants}
+            initial={"hide"}
+            animate={"big"}
+            transition={transition}
+        >
+            <primitive object={gltf.scene} dispose={null} />
+        </motion.group>
     )
 }
+
+/*
+
+    <motion.group
+        variants={variants}
+        initial={"hide"}
+        animate={active ? "big" : "show"}
+        transition={transition}
+        onClick={() => setActive(!active)}
+    >
+
+
+*/
 
 export const App = () => {
     return (
@@ -57,11 +61,18 @@ export const App = () => {
                 gl.outputEncoding = THREE.sRGBEncoding
             }}
         >
-            <group>
+            <Suspense fallback={null}>
                 <SimpleThree />
-            </group>
-
+            </Suspense>
+            <ambientLight position={[1, 1, 1]} intensity={1} color="#eaf" />
+            <pointLight position={[100, 100, 100]} intensity={2} />
             <OrbitControls />
         </Canvas>
     )
+}
+
+const transition = {
+    type: "spring",
+    stiffness: 60,
+    damping: 20,
 }
