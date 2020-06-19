@@ -4,11 +4,11 @@ import { useState } from "react"
 import { motion } from "../../src/render/three"
 
 export const createRoundedRectShape = (
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    radius: number
+    x = 0,
+    y = 0,
+    width = 5,
+    height = 5,
+    radius = 1
 ): THREE.Shape => {
     const ctx = new THREE.Shape()
 
@@ -25,6 +25,8 @@ export const createRoundedRectShape = (
     return ctx
 }
 
+export const rectShape = createRoundedRectShape()
+
 export const extrudeSettings = {
     depth: 5,
     bevelEnabled: true,
@@ -34,15 +36,10 @@ export const extrudeSettings = {
     bevelThickness: 2,
 }
 
+export const geometryArgs = [rectShape, extrudeSettings]
+
 export function RoundedCube(props) {
-    const {
-        x = 0,
-        y = 0,
-        width = 5,
-        height = 5,
-        radius = 1,
-        color = "#FFFFFF",
-    } = props
+    const { x, y, width, height, radius, color = "#FFFFFF" } = props
     const [roundedRectShape] = useState(
         createRoundedRectShape(x, y, width, height, radius)
     )

@@ -1,16 +1,41 @@
 import * as React from "react"
 import * as THREE from "three"
-import { Suspense, useState, useRef } from "react"
+import { useState } from "react"
 import { motion } from "../../src/render/three"
-import { useFrame, Canvas } from "react-three-fiber"
-import { OrbitControls, StandardEffects } from "drei"
-import { RoundedCube } from "./threeHelpers"
-import { Asset } from "./framerLogo"
+import { Canvas } from "react-three-fiber"
+import { OrbitControls } from "drei"
+import { rectShape, extrudeSettings } from "./threeHelpers"
 
-function SimpleThree(props) {
-    const [clicks, setClicks] = useState(0)
-    const [hover, hovered] = useState(false)
-    return <group></group>
+function SimpleThree() {
+    const [active, setActive] = useState(false)
+
+    const variants = {
+        hide: { scale: 0, rotate: -6 },
+        show: { scale: 0.5, rotate: 0 },
+        big: { scale: 1, rotate: -6 },
+    }
+
+    return (
+        <>
+            <motion.mesh
+                variants={variants}
+                initial={"hide"}
+                animate={active ? "big" : "show"}
+                transition={{
+                    type: "spring",
+                    stiffness: 60,
+                    damping: 20,
+                }}
+                onClick={() => setActive(!active)}
+            >
+                <extrudeBufferGeometry
+                    attach="geometry"
+                    args={[rectShape, extrudeSettings]}
+                />
+                <meshDepthMaterial attach="material" />
+            </motion.mesh>
+        </>
+    )
 }
 
 export const App = () => {
@@ -23,8 +48,8 @@ export const App = () => {
                 background: "linear-gradient(180deg, #d0e, #91f)",
             }}
             gl={{
-                alpha: true,
                 logarithmicDepthBuffer: true,
+                antialias: false,
             }}
             camera={{ fov: 75, position: [0, 0, 25], near: 1, far: 1000 }}
             onCreated={({ gl }) => {
@@ -32,8 +57,8 @@ export const App = () => {
                 gl.outputEncoding = THREE.sRGBEncoding
             }}
         >
-            <group scale={[0.25, 0.25, 0.25]}>
-                <RoundedCube />
+            <group>
+                <SimpleThree />
             </group>
 
             <OrbitControls />
