@@ -3,7 +3,7 @@ import * as THREE from "three"
 import { useState } from "react"
 import { motion } from "../../src/render/three"
 
-const createRoundedRectShape = (
+export const createRoundedRectShape = (
     x: number,
     y: number,
     width: number,
@@ -25,7 +25,7 @@ const createRoundedRectShape = (
     return ctx
 }
 
-const extrudeSettings = {
+export const extrudeSettings = {
     depth: 5,
     bevelEnabled: true,
     bevelSegments: 5,

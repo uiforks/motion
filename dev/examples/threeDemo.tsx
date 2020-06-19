@@ -5,6 +5,17 @@ import { motion } from "../../src/render/three"
 import { useFrame, Canvas } from "react-three-fiber"
 import { OrbitControls, StandardEffects } from "drei"
 import { RoundedCube } from "./threeHelpers"
+import { Asset } from "./framerLogo"
+
+function FramerLogo(props) {
+    return (
+        <motion.group scale={4}>
+            <Suspense fallback={null}>
+                <Asset url="/framerLogo.gltf" />
+            </Suspense>
+        </motion.group>
+    )
+}
 
 const primitives = [
     <sphereBufferGeometry attach="geometry" args={[1, 16, 16]} />,
@@ -114,7 +125,11 @@ export const App = () => {
                 })}
             </group>
 
-            <RoundedCube />
+            <group scale={[0.25, 0.25, 0.25]}>
+                <RoundedCube />
+            </group>
+
+            <FramerLogo />
 
             <OrbitControls />
         </Canvas>
