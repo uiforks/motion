@@ -7,6 +7,11 @@ export const applyValue = {
     x: (element: any, value: any) => (element.position.x = value),
     y: (element: any, value: any) => (element.position.y = value),
     z: (element: any, value: any) => (element.position.z = value),
+    position: (element: any, value: [number, number, number]) => {
+        element.position.x = value[0]
+        element.position.y = value[1]
+        element.position.z = value[2]
+    },
     scale: (element: any, value: any) => {
         element.scale.x = value
         element.scale.y = value
