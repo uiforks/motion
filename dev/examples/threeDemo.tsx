@@ -1,13 +1,14 @@
 import * as React from "react"
-import { useState } from "react"
+import * as THREE from "three"
+import { Suspense, useState } from "react"
 import { motion } from "../../src/render/three"
 import { Canvas } from "react-three-fiber"
-import { OrbitControls } from "drei"
+import { OrbitControls, StandardEffects } from "drei"
 
 function Orb(props) {
     return (
         <motion.mesh {...props}>
-            <meshBasicMaterial attach="material" />
+            <meshPhongMaterial attach="material" />
             <sphereBufferGeometry attach="geometry" args={[1, 50, 50]} />
         </motion.mesh>
     )
@@ -30,6 +31,7 @@ const getOrbs = () => {
                 y: y * z,
                 z: z * -0.2 * Math.random(),
                 scale: (circles - z) * -0.5 * (Math.random() * 0.2) + 0.3,
+                id,
             })
         }
 
@@ -43,20 +45,33 @@ export const App = () => {
     return (
         <Canvas
             colorManagement
-            style={{ width: "100vw", height: "100vh" }}
-            gl={{ antialias: false, alpha: false }}
-            camera={{ position: [0, 0, 25], near: 5, far: 30 }}
-            onCreated={({ gl }) => gl.setClearColor("#9966ff")}
+            style={{
+                width: "100vw",
+                height: "100vh",
+                background: "linear-gradient(180deg, #d0e, #91f)",
+            }}
+            gl={{
+                alpha: true,
+                logarithmicDepthBuffer: true,
+            }}
+            camera={{ fov: 75, position: [0, 0, 25] }}
+            onCreated={({ gl }) => {
+                gl.toneMapping = THREE.ACESFilmicToneMapping
+                gl.outputEncoding = THREE.sRGBEncoding
+            }}
             onClick={() => setActive(!active)}
         >
-            <ambientLight />
-            <pointLight position={[150, 150, 150]} intensity={0.55} />
-
+            <Suspense fallback={null}>
+                <StandardEffects smaa ao bloom bloomOpacity={0.1} />
+            </Suspense>
+            <ambientLight intensity={1} color="#eaf" />
+            <pointLight position={[100, 100, 100]} intensity={2} />
             <group>
                 {orbs.map(orb => {
-                    const { x, y, z, scale } = orb
+                    const { x, y, z, scale, id } = orb
                     return (
                         <Orb
+                            key={id}
                             animate={{
                                 x: active ? x : 0,
                                 y: active ? y : 0,
