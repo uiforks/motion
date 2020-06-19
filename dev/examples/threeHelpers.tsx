@@ -35,7 +35,14 @@ export const extrudeSettings = {
 }
 
 export function RoundedCube(props) {
-    const { x = 0, y = 0, width = 5, height = 5, radius = 1 } = props
+    const {
+        x = 0,
+        y = 0,
+        width = 5,
+        height = 5,
+        radius = 1,
+        color = "#FFFFFF",
+    } = props
     const [roundedRectShape] = useState(
         createRoundedRectShape(x, y, width, height, radius)
     )
@@ -45,7 +52,11 @@ export function RoundedCube(props) {
                 args={[roundedRectShape, extrudeSettings]}
                 attach="geometry"
             />
-            <meshBasicMaterial attach="material" />
+            <meshDepthMaterial
+                attach="material"
+                color={color}
+                flatShading={false}
+            />
         </motion.mesh>
     )
 }
