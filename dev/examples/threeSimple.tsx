@@ -80,7 +80,7 @@ export const App = () => {
     return (
         <Canvas
             colorManagement
-            camera={{ position: [0, 0, 6] }}
+            camera={{ position: [0, 0, 4] }}
             style={{
                 width: "100vw",
                 height: "100vh",
