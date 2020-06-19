@@ -30,7 +30,7 @@ export class ThreeVisualElement<E extends THREE.Object3D> extends VisualElement<
 > {
     clean() {}
     build() {}
-    readNativeValue(key: string) {
+    readNativeValue(_key: string) {
         return 1
     }
 

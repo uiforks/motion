@@ -32,7 +32,7 @@ const config: MotionComponentConfig<HTMLElement | SVGElement> = {
 const componentCache = new Map<string, any>()
 
 export const motion = new Proxy({} as any | THREE.Object3D, {
-    get: (target, key: any) => {
+    get: (_target, key: any) => {
         if (!componentCache.has(key)) {
             componentCache.set(key, createMotionComponent(key, config))
         }
