@@ -2,30 +2,80 @@ import { createElement } from "react"
 import { MotionProps } from "../../motion/types"
 import { filterProps } from "../dom/utils/filter-props"
 
-const getLatest = (value: any, base: any) => (value ? value : base)
+const getLatest = (value: any, base: any, test: any) =>
+    value ? value : base ? base : test
 
 export function buildThreeProps(visualElement: any) {
     const latest = visualElement.latest
 
     // Trying to make it so it doesn't flash bad props on mount :/
+    // TODO: Merging config and latest should be automated
     return {
         position: [
-            getLatest(latest.x, 0),
-            getLatest(latest.y, 0),
-            getLatest(latest.z, 0),
+            getLatest(
+                latest.x,
+                visualElement.config.position
+                    ? visualElement.config.position[0]
+                    : 0,
+                0
+            ),
+            getLatest(
+                latest.y,
+                visualElement.config.position
+                    ? visualElement.config.position[1]
+                    : 0,
+                0
+            ),
+            getLatest(
+                latest.z,
+                visualElement.config.position
+                    ? visualElement.config.position[2]
+                    : 0,
+                0
+            ),
         ],
         rotation: [
-            getLatest(latest.rotateX, 0),
-            getLatest(latest.rotateY, 0),
-            getLatest(latest.rotateZ, 0),
+            getLatest(
+                latest.rotateX,
+                visualElement.config.rotation
+                    ? visualElement.config.rotation[0]
+                    : 0,
+                0
+            ),
+            getLatest(
+                latest.rotateY,
+                visualElement.config.rotation
+                    ? visualElement.config.rotation[1]
+                    : 0,
+                0
+            ),
+            getLatest(
+                latest.rotateZ,
+                visualElement.config.rotation
+                    ? visualElement.config.rotation[2]
+                    : 0,
+                0
+            ),
         ],
         scale: [
-            getLatest(latest.scaleX || latest.scale, 1),
-            getLatest(latest.scaleY || latest.scale, 1),
-            getLatest(latest.scaleZ || latest.scale, 1),
+            getLatest(
+                latest.scaleX || latest.scale,
+                visualElement.config.scale ? visualElement.config.scale[0] : 1,
+                1
+            ),
+            getLatest(
+                latest.scaleY || latest.scale,
+                visualElement.config.scale ? visualElement.config.scale[1] : 1,
+                1
+            ),
+            getLatest(
+                latest.scaleZ || latest.scale,
+                visualElement.config.scale ? visualElement.config.scale[2] : 1,
+                1
+            ),
         ],
-        color: getLatest(latest.color, undefined),
-        opacity: getLatest(latest.opacity, 1),
+        color: getLatest(latest.color, visualElement.config.color, undefined),
+        opacity: getLatest(latest.opacity, visualElement.config.opacity, 1),
     }
 }
 
