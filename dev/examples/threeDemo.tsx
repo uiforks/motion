@@ -4,6 +4,7 @@ import { Suspense, useState, useRef } from "react"
 import { motion } from "../../src/render/three"
 import { useFrame, Canvas } from "react-three-fiber"
 import { OrbitControls, StandardEffects } from "drei"
+import { RoundedCube } from "./threeHelpers"
 
 const primitives = [
     <sphereBufferGeometry attach="geometry" args={[1, 16, 16]} />,
@@ -88,7 +89,6 @@ export const App = () => {
                 gl.toneMapping = THREE.ACESFilmicToneMapping
                 gl.outputEncoding = THREE.sRGBEncoding
             }}
-            onClick={() => setActive(!active)}
         >
             <Suspense fallback={null}>
                 <StandardEffects smaa ao bloom bloomOpacity={0.1} />
@@ -113,6 +113,8 @@ export const App = () => {
                     )
                 })}
             </group>
+
+            <RoundedCube />
 
             <OrbitControls />
         </Canvas>
