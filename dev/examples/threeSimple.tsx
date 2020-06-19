@@ -136,7 +136,9 @@ export const App = () => {
                                     scale: 0,
                                 }}
                                 transition={{
-                                    duration: 1,
+                                    type: "spring",
+                                    stiffness: 40,
+                                    damping: 40,
                                 }}
                             >
                                 {orbit ? (
