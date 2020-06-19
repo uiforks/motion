@@ -12,7 +12,6 @@ export const useThreeVisualElement = (
     _isStatic: any,
     ref: any
 ) => {
-    console.log(ref)
     const visualElement = useConstant(
         () => new ThreeVisualElement(parent, ref as any)
     )
