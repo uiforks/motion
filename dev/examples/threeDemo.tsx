@@ -1,15 +1,43 @@
 import * as React from "react"
 import * as THREE from "three"
-import { Suspense, useState } from "react"
+import { Suspense, useState, useRef } from "react"
 import { motion } from "../../src/render/three"
-import { Canvas } from "react-three-fiber"
+import { useFrame, Canvas } from "react-three-fiber"
 import { OrbitControls, StandardEffects } from "drei"
 
+const primitives = [
+    <sphereBufferGeometry attach="geometry" args={[1, 16, 16]} />,
+    <coneBufferGeometry attach="geometry" args={[1, 1, 8]} />,
+    <icosahedronBufferGeometry attach="geometry" args={[1]} />,
+    <octahedronBufferGeometry attach="geometry" args={[1]} />,
+    <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />,
+    <torusBufferGeometry attach="geometry" args={[0.8, 0.2, 6, 12]} />,
+    <torusKnotBufferGeometry attach="geometry" args={[0.8, 0.2, 26, 12]} />,
+]
+
+const getRandomPrimitive = () => {
+    return primitives[Math.floor(Math.random() * primitives.length)]
+}
+
 function Orb(props) {
+    const mesh = useRef()
+
+    useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01))
+
     return (
-        <motion.mesh {...props}>
+        <motion.mesh ref={mesh} {...props}>
             <meshPhongMaterial attach="material" />
-            <sphereBufferGeometry attach="geometry" args={[1, 50, 50]} />
+            {props.primitive}
+            {/* <sphereBufferGeometry attach="geometry" args={[1, 16, 16]} /> */}
+            {/* <coneBufferGeometry attach="geometry" args={[1, 1, 8]} /> */}
+            {/* <icosahedronBufferGeometry attach="geometry" args={[1]} /> */}
+            {/* <octahedronBufferGeometry attach="geometry" args={[1]} /> */}
+            {/* <boxBufferGeometry attach="geometry" args={[1, 1, 1]} /> */}
+            {/* <torusBufferGeometry attach="geometry" args={[0.8, 0.2, 6, 12]} /> */}
+            {/* <torusKnotBufferGeometry
+                attach="geometry"
+                args={[0.8, 0.2, 26, 12]}
+            /> */}
         </motion.mesh>
     )
 }
@@ -32,6 +60,7 @@ const getOrbs = () => {
                 z: z * -0.2 * Math.random(),
                 scale: (circles - z) * -0.5 * (Math.random() * 0.2) + 0.3,
                 id,
+                primitive: getRandomPrimitive(),
             })
         }
 
@@ -54,7 +83,7 @@ export const App = () => {
                 alpha: true,
                 logarithmicDepthBuffer: true,
             }}
-            camera={{ fov: 75, position: [0, 0, 25] }}
+            camera={{ fov: 75, position: [0, 0, 25], near: 1, far: 1000 }}
             onCreated={({ gl }) => {
                 gl.toneMapping = THREE.ACESFilmicToneMapping
                 gl.outputEncoding = THREE.sRGBEncoding
@@ -64,11 +93,11 @@ export const App = () => {
             <Suspense fallback={null}>
                 <StandardEffects smaa ao bloom bloomOpacity={0.1} />
             </Suspense>
-            <ambientLight intensity={1} color="#eaf" />
+            <ambientLight position={[1, 1, 1]} intensity={1} color="#eaf" />
             <pointLight position={[100, 100, 100]} intensity={2} />
             <group>
                 {orbs.map(orb => {
-                    const { x, y, z, scale, id } = orb
+                    const { x, y, z, scale, id, primitive } = orb
                     return (
                         <Orb
                             key={id}
@@ -79,6 +108,7 @@ export const App = () => {
                                 scale: active ? scale : 0,
                             }}
                             transition={{ damping: 50 }}
+                            primitive={primitive}
                         />
                     )
                 })}
