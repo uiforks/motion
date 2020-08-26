@@ -8,11 +8,7 @@ import styled from "styled-components"
  * resize when children are added/removed/expanded
  */
 
-interface ItemProps {
-    isOpen: boolean
-    onClick: () => void
-    i: number
-}
+interface ItemProps {}
 
 const ContentRow = styled(motion.div)`
     width: 200px;
@@ -36,9 +32,14 @@ const Container = styled(motion.div)`
     padding: 20px;
     margin-bottom: 20px;
     overflow: hidden;
+    width: 200px;
 
     &:last-child {
         margin-bottom: 0px;
+    }
+
+    &[data-is-dragging="true"] {
+        position: absolute;
     }
 `
 
@@ -49,31 +50,19 @@ const Image = styled(motion.div)`
     border-radius: 20px;
 `
 
-function Item({ onClick, i }: ItemProps) {
-    const [isOpen, setIsOpen] = useState<false | number>(0)
+function Item({}: ItemProps) {
+    const [isDragging, setIsDragging] = useState(false)
 
     return (
         <Container
             layout
-            onClick={() => setIsOpen(!isOpen)}
-            isOpen={isOpen}
+            drag
             id="container"
+            onDragStart={() => setTimeout(() => setIsDragging(true), 200)}
+            onDragEnd={() => setIsDragging(false)}
+            data-is-dragging={isDragging}
         >
-            <Image id="image" layout />
-            <AnimatePresence initial={false}>
-                {isOpen && (
-                    <motion.div
-                        layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
-                        <ContentRow />
-                        <ContentRow />
-                        <ContentRow />
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <Image id="image" />
         </Container>
     )
 }
@@ -82,7 +71,7 @@ const Component = () => {
     return (
         <List initial={{ borderRadius: 25 }} layout>
             {items.map((id) => (
-                <Item key={id} i={id} />
+                <Item key={id} />
             ))}
         </List>
     )
