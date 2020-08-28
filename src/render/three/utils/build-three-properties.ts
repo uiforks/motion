@@ -44,6 +44,8 @@ export function buildThreeProperties(
  * TODO: TypeScript
  *
  * TODO: Automate property matching
+ *
+ * TODO: Detect single 'scale' values
  */
 const buildThreeProperty: Record<
     string,
