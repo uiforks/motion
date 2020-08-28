@@ -70,7 +70,9 @@ export const App = () => {
                         transition={{
                             type: "spring",
                             stiffness: 120,
-                            damping: 120,
+                            damping: 25,
+                            restSpeed: 0.1,
+                            restDelta: 0.01,
                         }}
                     >
                         <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
