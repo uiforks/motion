@@ -43,7 +43,7 @@ function createMotionProxy(defaultFeatures: MotionFeature[]) {
     type CustomMotionComponent = {
         custom: typeof custom
     }
-    type Motion = ThreeMotionComponents & CustomMotionComponent
+    type Motion = ThreeMotionComponents & CustomMotionComponent & any
 
     const config: MotionComponentConfig<ReactThreeFiber.Object3DNode<
         any,

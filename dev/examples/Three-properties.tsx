@@ -32,15 +32,8 @@ export const App = () => {
         >
             <ambientLight color="#e9f" />
             <pointLight position={[10, 10, 10]} />
-            <motion.mesh
-                key="mesh"
-                z={zSpring}
-                transition={{
-                    type: "spring",
-                    restSpeed: 0.1,
-                    restDelta: 0.01,
-                }}
-            >
+
+            <motion.mesh key="mesh" z={zSpring}>
                 <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
                 <meshStandardMaterial attach="material" color="#fff" />
             </motion.mesh>
