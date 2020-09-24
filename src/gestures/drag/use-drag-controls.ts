@@ -1,4 +1,3 @@
-import { warning } from "hey-listen"
 import * as React from "react"
 import { useConstant } from "../../utils/use-constant"
 import {
@@ -74,19 +73,14 @@ export class DragControls {
      * @public
      */
     start(
-        event:
-            | React.MouseEvent
-            | React.TouchEvent
-            | React.PointerEvent
-            | MouseEvent
-            | TouchEvent
-            | PointerEvent,
+        event: React.PointerEvent | PointerEvent,
         options?: DragControlOptions
     ) {
-        const originalEvent = (event as React.PointerEvent).nativeEvent || event
-
         this.componentControls.forEach((controls) => {
-            controls.start(convertExternalPointerEvent(originalEvent), options)
+            controls.start(
+                (event as React.PointerEvent).nativeEvent || event,
+                options
+            )
         })
     }
 }
@@ -140,47 +134,4 @@ const createDragControls = () => new DragControls()
  */
 export function useDragControls() {
     return useConstant(createDragControls)
-}
-
-function convertMouseToPointer(event: MouseEvent): PointerEvent {
-    return {
-        ...event,
-        isPrimary: true,
-        pointerType: "mouse",
-    } as PointerEvent
-}
-
-function convertTouchToPointer(event: TouchEvent): PointerEvent {
-    const primaryTouch = event.touches[0] || event.changedTouches[0]
-    return {
-        pageX: primaryTouch.pageX,
-        pageY: primaryTouch.pageY,
-        clientX: primaryTouch.clientX,
-        clientY: primaryTouch.clientY,
-        isPrimary: true,
-        pointerType: "touch",
-    } as PointerEvent
-}
-
-/**
- * `dragControls.start` can be started by an external event. Internally, we use PointerEvents.
- * This leaves us in the siutation where a user could provide a MouseEvent or TouchEvent so
- * here we convert them to a working version of a PointerEvent
- *
- * This is deprecated - in a 3.0 we can remove these converters.
- */
-function convertExternalPointerEvent(
-    event: MouseEvent | TouchEvent | PointerEvent
-): PointerEvent {
-    if (typeof PointerEvent !== "undefined" && event instanceof PointerEvent)
-        return event
-
-    warning(
-        true,
-        "Use of MouseEvent and TouchEvents is deprecated and will be removed in 3.0. Provide a PointerEvent instead."
-    )
-
-    return (event as TouchEvent).touches
-        ? convertTouchToPointer(event as TouchEvent)
-        : convertMouseToPointer(event as MouseEvent)
 }

@@ -194,7 +194,7 @@ export interface CustomValueType {
 // @public
 export class DragControls {
     // Warning: (ae-forgotten-export) The symbol "DragControlOptions" needs to be exported by the entry point index.d.ts
-    start(event: React.MouseEvent | React.TouchEvent | React.PointerEvent | MouseEvent | TouchEvent | PointerEvent, options?: DragControlOptions): void;
+    start(event: React.PointerEvent | PointerEvent, options?: DragControlOptions): void;
     // Warning: (ae-forgotten-export) The symbol "VisualElementDragControls" needs to be exported by the entry point index.d.ts
     // 
     // @internal
