@@ -276,13 +276,14 @@ export class VisualElementDragControls {
      * Ensure the component's layout and target bounding boxes are up-to-date.
      */
     prepareBoundingBox() {
-        const { visualElement } = this
-        visualElement.withoutTransform(() => {
-            visualElement.measureLayout()
-        })
-        visualElement.rebaseTargetBox(
+        const element = this.visualElement.getInstance()
+        const transform = element.style.transform
+        this.visualElement.resetTransform()
+        this.visualElement.measureLayout()
+        element.style.transform = transform
+        this.visualElement.rebaseTargetBox(
             true,
-            visualElement.getBoundingBoxWithoutTransforms()
+            this.visualElement.getBoundingBoxWithoutTransforms()
         )
     }
 
