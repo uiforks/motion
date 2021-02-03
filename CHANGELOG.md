@@ -2,7 +2,7 @@
 
 Framer Motion adheres to [Semantic Versioning](http://semver.org/).
 
-## [3.4.0] Unreleased
+## [3.3.0] Unreleased
 
 ### Changed
 
@@ -11,10 +11,9 @@ Framer Motion adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 -   Crossfading elements can never fall out of positional/style sync.
--   Fixing SVG double translation transform (props + transform style).
+-   SVG double translation transform.
 -   `animate` `onComplete` now firing correctly.
 -   Only firing keyframe animation when all values have changed.
--   Removing forced re-renders for variant trees, now passing variants through `VisualElement` and calculating stagger order based on DOM APIs.
 
 ## [3.2.1] 2020-01-11
 

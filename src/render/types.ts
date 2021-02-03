@@ -7,6 +7,7 @@ import {
     CrossfadeState,
     Snapshot,
 } from "../components/AnimateSharedLayout/utils/stack"
+import { VisualElementTree } from "../motion/context/MotionContext"
 import { MotionProps } from "../motion/types"
 import { TargetAndTransition, Transition, Variant } from "../types"
 import { AxisBox2D } from "../types/geometry"
@@ -22,7 +23,6 @@ export interface MotionPoint {
 
 export interface VisualElement<Instance = any, MutableState = any>
     extends LifecycleManager {
-    treeType: string
     depth: number
     current: Instance | null
     manuallyAnimateOnMount: boolean
@@ -33,14 +33,11 @@ export interface VisualElement<Instance = any, MutableState = any>
     isStatic?: boolean
     isResumingFromSnapshot: boolean
     clearState(props: MotionProps): void
+    subscribeToVariantParent(): void
     getInstance(): Instance | null
     path: VisualElement[]
     addChild(child: VisualElement): () => void
     ref: Ref<Instance | null>
-    sortNodePosition(element: VisualElement): number
-
-    addVariantChild(child: VisualElement): undefined | (() => void)
-    getClosestVariantNode(): VisualElement | undefined
 
     setCrossfadeState(state: CrossfadeState): void
     layoutSafeToRemove?: () => void
@@ -139,7 +136,6 @@ export interface VisualElement<Instance = any, MutableState = any>
 }
 
 export interface VisualElementConfig<Instance, MutableState, Options> {
-    treeType?: string
     createRenderState(): MutableState
     onMount?: (
         element: VisualElement<Instance>,
@@ -158,7 +154,6 @@ export interface VisualElementConfig<Instance, MutableState, Options> {
         options: Options,
         props: MotionProps
     ): void
-    sortNodePosition?: (a: Instance, b: Instance) => number
     makeTargetAnimatable(
         element: VisualElement<Instance>,
         target: TargetAndTransition,
@@ -205,7 +200,7 @@ export type UseVisualElement<E, P = MotionProps> = (
     props: MotionProps & P,
     isStatic?: boolean,
     ref?: Ref<E>
-) => VisualElement<E>
+) => VisualElementTree
 
 /**
  * A generic set of string/number values
