@@ -2,9 +2,15 @@
 import * as React from "react"
 import * as Three from "three"
 import { useState } from "react"
-import { motion } from "../../src/render/three/motion"
 import { AnimatePresence } from "@framer"
-import { Canvas } from "react-three-fiber"
+import { Canvas, PointerEvent, useLoader } from "react-three-fiber"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { motion } from "../../src/render/three/motion"
+import { useSpring } from "../../src"
+
+type Object3DWithStandardMaterial = Three.Object3D & {
+    material: Three.MeshStandardMaterial
+}
 
 const GRID_SIZE = 3
 const COLOR = [
@@ -64,18 +70,127 @@ const variants = [...Array(1 + GRID_SIZE * GRID_SIZE).keys()].map(
     createVariants
 )
 
+function Cursor() {
+    const gltf = useLoader(GLTFLoader, "/static/cursor.gltf")
+    const gltfWithColor = React.useMemo(() => {
+        const cursor = gltf.scene.getObjectByName(
+            "Cursor"
+        ) as Object3DWithStandardMaterial
+        const arrow = gltf.scene.getObjectByName(
+            "Arrow"
+        ) as Object3DWithStandardMaterial
+        const label = gltf.scene.getObjectByName(
+            "Label"
+        ) as Object3DWithStandardMaterial
+
+        cursor.material.metalness = 0
+        arrow.material.metalness = 0
+        label.material.metalness = 0
+
+        cursor.material.color = new Three.Color("#06f").convertSRGBToLinear()
+        arrow.material.color = new Three.Color("#06f").convertSRGBToLinear()
+        label.material.color = new Three.Color("#fff").convertSRGBToLinear()
+
+        return gltf
+    }, [gltf])
+
+    return <primitive object={gltfWithColor.scene} />
+}
+
 export const App = () => {
+    const scale = useSpring(0.6, {
+        stiffness: 520,
+        damping: 30,
+        restDelta: 0.0001,
+        restSpeed: 0.0001,
+    })
+    const x = useSpring(0, {
+        stiffness: 520,
+        damping: 30,
+        restDelta: 0.0001,
+        restSpeed: 0.0001,
+    })
+    const y = useSpring(0, {
+        stiffness: 520,
+        damping: 30,
+        restDelta: 0.0001,
+        restSpeed: 0.0001,
+    })
+    const z = useSpring(2, {
+        stiffness: 520,
+        damping: 30,
+        restDelta: 0.0001,
+        restSpeed: 0.0001,
+    })
     const [show, setShow] = useState(true)
 
+    const handlePointerMove = React.useCallback(
+        (event: PointerEvent) => {
+            x.set(event.point.x - 0.32)
+            y.set(event.point.y - 0.03)
+            z.set(event.point.z)
+        },
+        [x, y, z]
+    )
+
+    const handlePointerDown = React.useCallback(() => {
+        scale.set(0.56)
+    }, [scale])
+
+    const handlePointerUp = React.useCallback(() => {
+        scale.set(0.6)
+    }, [scale])
+
     return (
-        <div style={{ position: "fixed", inset: 0, background: "#fff" }}>
-            <Canvas colorManagement style={{ width: "100vw", height: "100vh" }}>
+        <div
+            style={{
+                position: "fixed",
+                inset: 0,
+                background: "#fff",
+                cursor: "none",
+            }}
+        >
+            <Canvas
+                colorManagement
+                camera={{ fov: 60 }}
+                pixelRatio={window.devicePixelRatio}
+                style={{ width: "100vw", height: "100vh" }}
+            >
                 <ambientLight intensity={1} color="#fff" />
                 <pointLight
                     position={[100, 100, 100]}
-                    intensity={1.2}
+                    intensity={1}
                     color="#fff"
                 />
+                <pointLight position={[0, 4, 1]} intensity={1} color="#fff" />
+                <mesh
+                    position={[0, 0, 2]}
+                    onPointerMove={handlePointerMove}
+                    onPointerDown={handlePointerDown}
+                    onPointerUp={handlePointerUp}
+                >
+                    <meshStandardMaterial
+                        attach="material"
+                        opacity={0}
+                        transparent
+                    />
+                    <planeBufferGeometry attach="geometry" args={[16, 16]} />
+                </mesh>
+                <motion.group
+                    position={[x, y, z] as any}
+                    scale={[scale, scale, scale] as any}
+                >
+                    <group position={[0.5, -0.5, 0]}>
+                        <pointLight
+                            position={[0, 0, -1]}
+                            intensity={2}
+                            color="#fff"
+                        />
+                        <React.Suspense fallback={null}>
+                            <Cursor />
+                        </React.Suspense>
+                    </group>
+                </motion.group>
                 <motion.group
                     position={[2, 0, 0]}
                     initial={{ scale: 1 }}
@@ -128,7 +243,7 @@ export const App = () => {
                             >
                                 {[...Array(GRID_SIZE * GRID_SIZE).keys()].map(
                                     (index) => {
-                                        const [x, y] = getGridPosition(
+                                        const [i, j] = getGridPosition(
                                             index,
                                             GRID_SIZE,
                                             0.5
@@ -139,8 +254,8 @@ export const App = () => {
                                                 key={index}
                                                 variants={variants[1 + index]}
                                                 position={[
-                                                    x + 0.25,
-                                                    y + 0.25,
+                                                    i + 0.25,
+                                                    j + 0.25,
                                                     0,
                                                 ]}
                                                 transition={{
