@@ -157,12 +157,6 @@ export const App = () => {
                 style={{ width: "100vw", height: "100vh" }}
             >
                 <ambientLight intensity={1} color="#fff" />
-                <pointLight
-                    position={[100, 100, 100]}
-                    intensity={1}
-                    color="#fff"
-                />
-                <pointLight position={[0, 4, 1]} intensity={1} color="#fff" />
                 <mesh
                     position={[0, 0, 2]}
                     onPointerMove={handlePointerMove}
@@ -182,8 +176,13 @@ export const App = () => {
                 >
                     <group position={[0.5, -0.5, 0]}>
                         <pointLight
-                            position={[0, 0, -1]}
-                            intensity={2}
+                            position={[0.5, 2, 1]}
+                            intensity={1}
+                            color="#fff"
+                        />
+                        <pointLight
+                            position={[0.5, 0, -0.1]}
+                            intensity={1}
                             color="#fff"
                         />
                         <React.Suspense fallback={null}>
