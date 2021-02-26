@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react/jsx-pascal-case */
 import * as React from "react"
 import * as Three from "three"
@@ -61,7 +62,7 @@ function createVariants(index = 0) {
             rotateY: -1,
             opacity: 0,
             color: "#fff",
-            transition: { duration: 3 },
+            transition: { duration: 1, type: "spring", bounce: 0.3 },
         },
     }
 }
@@ -97,32 +98,32 @@ function Cursor() {
     return <primitive object={gltfWithColor.scene} />
 }
 
+const spring = {
+    stiffness: 520,
+    damping: 30,
+    restDelta: 0.0001,
+    restSpeed: 0.0001,
+}
+
+const liStyle: React.CSSProperties = {
+    fontFamily: "system-ui, -apple-system",
+    listStyle: "none",
+    margin: "0.4em 0",
+    userSelect: "none",
+    fontWeight: 500,
+}
+
+const emojiStyle: React.CSSProperties = {
+    fontSize: "0.8em",
+    marginRight: "0.6em",
+}
+
 export const App = () => {
-    const scale = useSpring(0.6, {
-        stiffness: 520,
-        damping: 30,
-        restDelta: 0.0001,
-        restSpeed: 0.0001,
-    })
-    const x = useSpring(0, {
-        stiffness: 520,
-        damping: 30,
-        restDelta: 0.0001,
-        restSpeed: 0.0001,
-    })
-    const y = useSpring(0, {
-        stiffness: 520,
-        damping: 30,
-        restDelta: 0.0001,
-        restSpeed: 0.0001,
-    })
-    const z = useSpring(2, {
-        stiffness: 520,
-        damping: 30,
-        restDelta: 0.0001,
-        restSpeed: 0.0001,
-    })
     const [show, setShow] = useState(true)
+    const scale = useSpring(0.6, spring)
+    const x = useSpring(0, spring)
+    const y = useSpring(0, spring)
+    const z = useSpring(2, spring)
 
     const handlePointerMove = React.useCallback(
         (event: PointerEvent) => {
@@ -150,6 +151,62 @@ export const App = () => {
                 cursor: "none",
             }}
         >
+            <div
+                style={{
+                    position: "fixed",
+                    top: 20,
+                    left: 20,
+                    padding: "30px 32px",
+                    borderRadius: 20,
+                    background: "#f6f6f6",
+                    transformOrigin: "top left",
+                    transform: "scale(0.7)",
+                }}
+            >
+                <ul style={{ margin: 0, padding: 0 }}>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>✅</span> Animations through{" "}
+                        <code>animate</code>.
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>✅</span> Variants.
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>✅</span> Gestures (e.g.{" "}
+                        <code>whileHover</code> and <code>whileTap</code>.).
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>✅</span> Mount/unmount
+                        animations through <code>AnimatePresence</code>.
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>✅</span> Orchestration through{" "}
+                        <code>staggerChildren</code>.
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>✅</span> MotionValues.
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>🚧</span> Shipping a 0.1.
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>🚧</span> …
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>🚧</span> Drag.
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>🚧</span> Shaders and other
+                        material primitives.
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>🚧</span> …
+                    </li>
+                    <li style={liStyle}>
+                        <span style={emojiStyle}>🚧</span> Shipping a 1.0.
+                    </li>
+                </ul>
+            </div>
             <Canvas
                 colorManagement
                 camera={{ fov: 60 }}
@@ -190,13 +247,12 @@ export const App = () => {
                         </React.Suspense>
                     </group>
                 </motion.group>
-                <motion.group
-                    position={[2, 0, 0]}
-                    initial={{ scale: 1 }}
-                    animate={{ scale: 1 }}
-                    whileTap={{ scale: 0.9 }}
-                >
-                    <motion.group>
+                <motion.group position={[2, 0, 0]}>
+                    <motion.group
+                        initial={{ scale: 1 }}
+                        animate={{ scale: 1 }}
+                        whileTap={{ scale: 0.9 }}
+                    >
                         <mesh onClick={() => setShow(!show)}>
                             <meshStandardMaterial attach="material" />
                             <boxBufferGeometry
