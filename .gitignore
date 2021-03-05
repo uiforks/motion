@@ -12,3 +12,5 @@ yarn-error.log
 /types
 /cypress/screenshots
 /cypress/videos
+localhost-key.pem
+localhost.pem

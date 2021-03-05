@@ -2,10 +2,13 @@ const path = require("path")
 const config = require("../../webpack.config")
 const webpack = require("webpack")
 const chalk = require("chalk")
+const fs = require("fs")
 
 const DEV_SERVER_PORT = 9990
 
-console.log(chalk.bold.green(`\nRunning at: http://0.0.0.0:${DEV_SERVER_PORT}/\n`))
+console.log(
+    chalk.bold.green(`\nRunning at: https://localhost:${DEV_SERVER_PORT}/\n`)
+)
 
 config.entry = {
     framer: [
@@ -24,6 +27,12 @@ config.devServer = {
     // openPage: "/",
     stats: "errors-only",
     port: DEV_SERVER_PORT,
+    // https: true
+    https: {
+        key: fs.readFileSync("localhost-key.pem"),
+        cert: fs.readFileSync("localhost.pem"),
+        // ca: fs.readFileSync("/path/to/ca.pem"),
+    },
 }
 
 Object.assign(exports, config)
