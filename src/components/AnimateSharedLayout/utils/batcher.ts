@@ -1,4 +1,4 @@
-import sync, { flushSync } from "framesync"
+import { flushSync } from "framesync"
 import { VisualElement } from "../../../render/types"
 import { compareByDepth } from "../../../render/utils/compare-by-depth"
 import { Presence, SyncLayoutBatcher, SyncLayoutLifecycles } from "../types"
