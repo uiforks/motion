@@ -4,7 +4,7 @@ import * as React from "react"
 import * as Three from "three"
 import { useState } from "react"
 import { AnimatePresence } from "@framer"
-import { Canvas, PointerEvent, useLoader } from "react-three-fiber"
+import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { motion } from "../../src/render/three/motion"
 import { useSpring } from "../../src"
@@ -126,7 +126,7 @@ export const App = () => {
     const z = useSpring(2, spring)
 
     const handlePointerMove = React.useCallback(
-        (event: PointerEvent) => {
+        (event: ThreeEvent<PointerEvent>) => {
             x.set(event.point.x - 0.32)
             y.set(event.point.y - 0.03)
             z.set(event.point.z)
@@ -208,9 +208,7 @@ export const App = () => {
                 </ul>
             </div>
             <Canvas
-                colorManagement
                 camera={{ fov: 60 }}
-                pixelRatio={window.devicePixelRatio}
                 style={{ width: "100vw", height: "100vh" }}
             >
                 <ambientLight intensity={1} color="#fff" />

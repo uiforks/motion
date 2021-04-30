@@ -80,7 +80,7 @@
         "react": "^17.0.0-rc.0",
         "react-dev-utils": "^6.1.1",
         "react-dom": "^17.0.0-rc.0",
-        "react-three-fiber": "^5.3.19",
+        "@react-three/fiber": "^6.0.17",
         "rollup": "^2.10.5",
         "rollup-plugin-terser": "^5.3.0",
         "rollup-plugin-visualizer": "^2.4.3",

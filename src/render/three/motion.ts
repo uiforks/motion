@@ -4,12 +4,12 @@ import { Animation } from "../../motion/features/animation"
 import { createMotionProxy } from "../../motion/proxy"
 import { createThreeUseRender } from "./create-use-render"
 import { threeVisualElement } from "./three-visual-element"
-import { ReactThreeFibreComponents } from "./types"
+import { ReactThreeFiberComponents } from "./types"
 import { MotionProps } from "../../motion/types"
 
 type ThreeMotionComponents = {
-    [K in keyof ReactThreeFibreComponents]: ComponentType<
-        ReactThreeFibreComponents[K] & MotionProps
+    [K in keyof ReactThreeFiberComponents]: ComponentType<
+        ReactThreeFiberComponents[K] & MotionProps
     >
 }
 

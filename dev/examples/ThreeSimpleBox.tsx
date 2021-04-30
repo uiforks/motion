@@ -2,7 +2,7 @@ import * as React from "react"
 import { useState } from "react"
 import { motion } from "../../src/render/three/motion"
 import { AnimatePresence } from "@framer"
-import { Canvas } from "react-three-fiber"
+import { Canvas } from "@react-three/fiber"
 
 const GRID_SIZE = 3
 
@@ -50,7 +50,7 @@ export const App = () => {
 
     return (
         <div style={{ position: "fixed", inset: 0, background: "black" }}>
-            <Canvas colorManagement style={{ width: "100vw", height: "100vh" }}>
+            <Canvas style={{ width: "100vw", height: "100vh" }}>
                 <pointLight position={[150, 150, 150]} intensity={1} />
                 <AnimatePresence>
                     {show && (

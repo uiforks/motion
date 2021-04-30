@@ -1,162 +1,292 @@
-import * as ReactThreeFiber from "react-three-fiber"
-import * as Three from "three"
+import * as ReactThreeFiber from "@react-three/fiber"
+import { Object3D } from "three"
+import { MotionProps } from "../../motion/types"
+import {
+    AudioListenerProps,
+    PositionalAudioProps,
+    MeshProps,
+    InstancedMeshProps,
+    SceneProps,
+    SpriteProps,
+    LODProps,
+    SkinnedMeshProps,
+    SkeletonProps,
+    BoneProps,
+    LineSegmentsProps,
+    LineLoopProps,
+    PointsProps,
+    GroupProps,
+    ImmediateRenderObjectProps,
+    CameraProps,
+    PerspectiveCameraProps,
+    OrthographicCameraProps,
+    CubeCameraProps,
+    ArrayCameraProps,
+    InstancedBufferGeometryProps,
+    BufferGeometryProps,
+    BoxBufferGeometryProps,
+    CircleBufferGeometryProps,
+    ConeBufferGeometryProps,
+    CylinderBufferGeometryProps,
+    DodecahedronBufferGeometryProps,
+    ExtrudeBufferGeometryProps,
+    IcosahedronBufferGeometryProps,
+    LatheBufferGeometryProps,
+    OctahedronBufferGeometryProps,
+    ParametricBufferGeometryProps,
+    PlaneBufferGeometryProps,
+    PolyhedronBufferGeometryProps,
+    RingBufferGeometryProps,
+    ShapeBufferGeometryProps,
+    SphereBufferGeometryProps,
+    TetrahedronBufferGeometryProps,
+    TextBufferGeometryProps,
+    TorusBufferGeometryProps,
+    TorusKnotBufferGeometryProps,
+    TubeBufferGeometryProps,
+    WireframeGeometryProps,
+    ParametricGeometryProps,
+    TetrahedronGeometryProps,
+    OctahedronGeometryProps,
+    IcosahedronGeometryProps,
+    DodecahedronGeometryProps,
+    PolyhedronGeometryProps,
+    TubeGeometryProps,
+    TorusKnotGeometryProps,
+    TorusGeometryProps,
+    TextGeometryProps,
+    SphereGeometryProps,
+    RingGeometryProps,
+    PlaneGeometryProps,
+    LatheGeometryProps,
+    ShapeGeometryProps,
+    ExtrudeGeometryProps,
+    EdgesGeometryProps,
+    ConeGeometryProps,
+    CylinderGeometryProps,
+    CircleGeometryProps,
+    BoxGeometryProps,
+    MaterialProps,
+    ShadowMaterialProps,
+    SpriteMaterialProps,
+    RawShaderMaterialProps,
+    ShaderMaterialProps,
+    PointsMaterialProps,
+    MeshPhysicalMaterialProps,
+    MeshStandardMaterialProps,
+    MeshPhongMaterialProps,
+    MeshToonMaterialProps,
+    MeshNormalMaterialProps,
+    MeshLambertMaterialProps,
+    MeshDepthMaterialProps,
+    MeshDistanceMaterialProps,
+    MeshBasicMaterialProps,
+    MeshMatcapMaterialProps,
+    LineDashedMaterialProps,
+    LineBasicMaterialProps,
+    PrimitiveProps,
+    LightProps,
+    SpotLightShadowProps,
+    SpotLightProps,
+    PointLightProps,
+    RectAreaLightProps,
+    HemisphereLightProps,
+    DirectionalLightShadowProps,
+    DirectionalLightProps,
+    AmbientLightProps,
+    LightShadowProps,
+    AmbientLightProbeProps,
+    HemisphereLightProbeProps,
+    LightProbeProps,
+    SpotLightHelperProps,
+    SkeletonHelperProps,
+    PointLightHelperProps,
+    HemisphereLightHelperProps,
+    GridHelperProps,
+    PolarGridHelperProps,
+    DirectionalLightHelperProps,
+    CameraHelperProps,
+    BoxHelperProps,
+    Box3HelperProps,
+    PlaneHelperProps,
+    ArrowHelperProps,
+    AxesHelperProps,
+    TextureProps,
+    VideoTextureProps,
+    DataTextureProps,
+    DataTexture3DProps,
+    CompressedTextureProps,
+    CubeTextureProps,
+    CanvasTextureProps,
+    DepthTextureProps,
+    RaycasterProps,
+    Vector2Props,
+    Vector3Props,
+    Vector4Props,
+    EulerProps,
+    Matrix3Props,
+    Matrix4Props,
+    QuaternionProps,
+    BufferAttributeProps,
+    InstancedBufferAttributeProps,
+    ColorProps,
+    FogProps,
+    FogExp2Props,
+} from "@react-three/fiber"
 
 export type Object3DProps = ReactThreeFiber.Object3DNode<
-    Three.Object3D,
-    typeof Three.Object3D
+    Object3D,
+    typeof Object3D
 >
 
 export type Object3DMotionProps = Object3DProps & MotionProps
 
-export type ReactThreeFibreComponents = {
-    // audio: ReactThreeFiber.AudioProps
-    audioListener: ReactThreeFiber.AudioListenerProps
-    positionalAudio: ReactThreeFiber.PositionalAudioProps
+export type ReactThreeFiberComponents = {
+    audioListener: AudioListenerProps
+    positionalAudio: PositionalAudioProps
 
-    mesh: ReactThreeFiber.MeshProps
-    instancedMesh: ReactThreeFiber.InstancedMeshProps
-    scene: ReactThreeFiber.SceneProps
-    sprite: ReactThreeFiber.SpriteProps
-    lOD: ReactThreeFiber.LODProps
-    skinnedMesh: ReactThreeFiber.SkinnedMeshProps
-    skeleton: ReactThreeFiber.SkeletonProps
-    bone: ReactThreeFiber.BoneProps
-    lineSegments: ReactThreeFiber.LineSegmentsProps
-    lineLoop: ReactThreeFiber.LineLoopProps
-    // line: ReactThreeFiber.LineProps
-    points: ReactThreeFiber.PointsProps
-    group: ReactThreeFiber.GroupProps
-    immediateRenderObject: ReactThreeFiber.ImmediateRenderObjectProps
+    mesh: MeshProps
+    instancedMesh: InstancedMeshProps
+    scene: SceneProps
+    sprite: SpriteProps
+    lOD: LODProps
+    skinnedMesh: SkinnedMeshProps
+    skeleton: SkeletonProps
+    bone: BoneProps
+    lineSegments: LineSegmentsProps
+    lineLoop: LineLoopProps
+    points: PointsProps
+    group: GroupProps
+    immediateRenderObject: ImmediateRenderObjectProps
 
     // cameras
-    camera: ReactThreeFiber.CameraProps
-    perspectiveCamera: ReactThreeFiber.PerspectiveCameraProps
-    orthographicCamera: ReactThreeFiber.OrthographicCameraProps
-    cubeCamera: ReactThreeFiber.CubeCameraProps
-    arrayCamera: ReactThreeFiber.ArrayCameraProps
+    camera: CameraProps
+    perspectiveCamera: PerspectiveCameraProps
+    orthographicCamera: OrthographicCameraProps
+    cubeCamera: CubeCameraProps
+    arrayCamera: ArrayCameraProps
 
     // geometry
-    geometry: ReactThreeFiber.GeometryProps
-    instancedBufferGeometry: ReactThreeFiber.InstancedBufferGeometryProps
-    bufferGeometry: ReactThreeFiber.BufferGeometryProps
-    boxBufferGeometry: ReactThreeFiber.BoxBufferGeometryProps
-    circleBufferGeometry: ReactThreeFiber.CircleBufferGeometryProps
-    coneBufferGeometry: ReactThreeFiber.ConeBufferGeometryProps
-    cylinderBufferGeometry: ReactThreeFiber.CylinderBufferGeometryProps
-    dodecahedronBufferGeometry: ReactThreeFiber.DodecahedronBufferGeometryProps
-    extrudeBufferGeometry: ReactThreeFiber.ExtrudeBufferGeometryProps
-    icosahedronBufferGeometry: ReactThreeFiber.IcosahedronBufferGeometryProps
-    latheBufferGeometry: ReactThreeFiber.LatheBufferGeometryProps
-    octahedronBufferGeometry: ReactThreeFiber.OctahedronBufferGeometryProps
-    parametricBufferGeometry: ReactThreeFiber.ParametricBufferGeometryProps
-    planeBufferGeometry: ReactThreeFiber.PlaneBufferGeometryProps
-    polyhedronBufferGeometry: ReactThreeFiber.PolyhedronBufferGeometryProps
-    ringBufferGeometry: ReactThreeFiber.RingBufferGeometryProps
-    shapeBufferGeometry: ReactThreeFiber.ShapeBufferGeometryProps
-    sphereBufferGeometry: ReactThreeFiber.SphereBufferGeometryProps
-    tetrahedronBufferGeometry: ReactThreeFiber.TetrahedronBufferGeometryProps
-    textBufferGeometry: ReactThreeFiber.TextBufferGeometryProps
-    torusBufferGeometry: ReactThreeFiber.TorusBufferGeometryProps
-    torusKnotBufferGeometry: ReactThreeFiber.TorusKnotBufferGeometryProps
-    tubeBufferGeometry: ReactThreeFiber.TubeBufferGeometryProps
-    wireframeGeometry: ReactThreeFiber.WireframeGeometryProps
-    parametricGeometry: ReactThreeFiber.ParametricGeometryProps
-    tetrahedronGeometry: ReactThreeFiber.TetrahedronGeometryProps
-    octahedronGeometry: ReactThreeFiber.OctahedronGeometryProps
-    icosahedronGeometry: ReactThreeFiber.IcosahedronGeometryProps
-    dodecahedronGeometry: ReactThreeFiber.DodecahedronGeometryProps
-    polyhedronGeometry: ReactThreeFiber.PolyhedronGeometryProps
-    tubeGeometry: ReactThreeFiber.TubeGeometryProps
-    torusKnotGeometry: ReactThreeFiber.TorusKnotGeometryProps
-    torusGeometry: ReactThreeFiber.TorusGeometryProps
-    textGeometry: ReactThreeFiber.TextGeometryProps
-    sphereGeometry: ReactThreeFiber.SphereGeometryProps
-    ringGeometry: ReactThreeFiber.RingGeometryProps
-    planeGeometry: ReactThreeFiber.PlaneGeometryProps
-    latheGeometry: ReactThreeFiber.LatheGeometryProps
-    shapeGeometry: ReactThreeFiber.ShapeGeometryProps
-    extrudeGeometry: ReactThreeFiber.ExtrudeGeometryProps
-    edgesGeometry: ReactThreeFiber.EdgesGeometryProps
-    coneGeometry: ReactThreeFiber.ConeGeometryProps
-    cylinderGeometry: ReactThreeFiber.CylinderGeometryProps
-    circleGeometry: ReactThreeFiber.CircleGeometryProps
-    boxGeometry: ReactThreeFiber.BoxGeometryProps
+    instancedBufferGeometry: InstancedBufferGeometryProps
+    bufferGeometry: BufferGeometryProps
+    boxBufferGeometry: BoxBufferGeometryProps
+    circleBufferGeometry: CircleBufferGeometryProps
+    coneBufferGeometry: ConeBufferGeometryProps
+    cylinderBufferGeometry: CylinderBufferGeometryProps
+    dodecahedronBufferGeometry: DodecahedronBufferGeometryProps
+    extrudeBufferGeometry: ExtrudeBufferGeometryProps
+    icosahedronBufferGeometry: IcosahedronBufferGeometryProps
+    latheBufferGeometry: LatheBufferGeometryProps
+    octahedronBufferGeometry: OctahedronBufferGeometryProps
+    parametricBufferGeometry: ParametricBufferGeometryProps
+    planeBufferGeometry: PlaneBufferGeometryProps
+    polyhedronBufferGeometry: PolyhedronBufferGeometryProps
+    ringBufferGeometry: RingBufferGeometryProps
+    shapeBufferGeometry: ShapeBufferGeometryProps
+    sphereBufferGeometry: SphereBufferGeometryProps
+    tetrahedronBufferGeometry: TetrahedronBufferGeometryProps
+    textBufferGeometry: TextBufferGeometryProps
+    torusBufferGeometry: TorusBufferGeometryProps
+    torusKnotBufferGeometry: TorusKnotBufferGeometryProps
+    tubeBufferGeometry: TubeBufferGeometryProps
+    wireframeGeometry: WireframeGeometryProps
+    parametricGeometry: ParametricGeometryProps
+    tetrahedronGeometry: TetrahedronGeometryProps
+    octahedronGeometry: OctahedronGeometryProps
+    icosahedronGeometry: IcosahedronGeometryProps
+    dodecahedronGeometry: DodecahedronGeometryProps
+    polyhedronGeometry: PolyhedronGeometryProps
+    tubeGeometry: TubeGeometryProps
+    torusKnotGeometry: TorusKnotGeometryProps
+    torusGeometry: TorusGeometryProps
+    textGeometry: TextGeometryProps
+    sphereGeometry: SphereGeometryProps
+    ringGeometry: RingGeometryProps
+    planeGeometry: PlaneGeometryProps
+    latheGeometry: LatheGeometryProps
+    shapeGeometry: ShapeGeometryProps
+    extrudeGeometry: ExtrudeGeometryProps
+    edgesGeometry: EdgesGeometryProps
+    coneGeometry: ConeGeometryProps
+    cylinderGeometry: CylinderGeometryProps
+    circleGeometry: CircleGeometryProps
+    boxGeometry: BoxGeometryProps
 
     // materials
-    material: ReactThreeFiber.MaterialProps
-    shadowMaterial: ReactThreeFiber.ShadowMaterialProps
-    spriteMaterial: ReactThreeFiber.SpriteMaterialProps
-    rawShaderMaterial: ReactThreeFiber.RawShaderMaterialProps
-    shaderMaterial: ReactThreeFiber.ShaderMaterialProps
-    pointsMaterial: ReactThreeFiber.PointsMaterialProps
-    meshPhysicalMaterial: ReactThreeFiber.MeshPhysicalMaterialProps
-    meshStandardMaterial: ReactThreeFiber.MeshStandardMaterialProps
-    meshPhongMaterial: ReactThreeFiber.MeshPhongMaterialProps
-    meshToonMaterial: ReactThreeFiber.MeshToonMaterialProps
-    meshNormalMaterial: ReactThreeFiber.MeshNormalMaterialProps
-    meshLambertMaterial: ReactThreeFiber.MeshLambertMaterialProps
-    meshDepthMaterial: ReactThreeFiber.MeshDepthMaterialProps
-    meshDistanceMaterial: ReactThreeFiber.MeshDistanceMaterialProps
-    meshBasicMaterial: ReactThreeFiber.MeshBasicMaterialProps
-    meshMatcapMaterial: ReactThreeFiber.MeshMatcapMaterialProps
-    lineDashedMaterial: ReactThreeFiber.LineDashedMaterialProps
-    lineBasicMaterial: ReactThreeFiber.LineBasicMaterialProps
+    material: MaterialProps
+    shadowMaterial: ShadowMaterialProps
+    spriteMaterial: SpriteMaterialProps
+    rawShaderMaterial: RawShaderMaterialProps
+    shaderMaterial: ShaderMaterialProps
+    pointsMaterial: PointsMaterialProps
+    meshPhysicalMaterial: MeshPhysicalMaterialProps
+    meshStandardMaterial: MeshStandardMaterialProps
+    meshPhongMaterial: MeshPhongMaterialProps
+    meshToonMaterial: MeshToonMaterialProps
+    meshNormalMaterial: MeshNormalMaterialProps
+    meshLambertMaterial: MeshLambertMaterialProps
+    meshDepthMaterial: MeshDepthMaterialProps
+    meshDistanceMaterial: MeshDistanceMaterialProps
+    meshBasicMaterial: MeshBasicMaterialProps
+    meshMatcapMaterial: MeshMatcapMaterialProps
+    lineDashedMaterial: LineDashedMaterialProps
+    lineBasicMaterial: LineBasicMaterialProps
 
     // primitive
-    primitive: ReactThreeFiber.PrimitiveProps
+    primitive: PrimitiveProps
 
     // lights and other
-    light: ReactThreeFiber.LightProps
-    spotLightShadow: ReactThreeFiber.SpotLightShadowProps
-    spotLight: ReactThreeFiber.SpotLightProps
-    pointLight: ReactThreeFiber.PointLightProps
-    rectAreaLight: ReactThreeFiber.RectAreaLightProps
-    hemisphereLight: ReactThreeFiber.HemisphereLightProps
-    directionalLightShadow: ReactThreeFiber.DirectionalLightShadowProps
-    directionalLight: ReactThreeFiber.DirectionalLightProps
-    ambientLight: ReactThreeFiber.AmbientLightProps
-    lightShadow: ReactThreeFiber.LightShadowProps
-    ambientLightProbe: ReactThreeFiber.AmbientLightProbeProps
-    hemisphereLightProbe: ReactThreeFiber.HemisphereLightProbeProps
-    lightProbe: ReactThreeFiber.LightProbeProps
+    light: LightProps
+    spotLightShadow: SpotLightShadowProps
+    spotLight: SpotLightProps
+    pointLight: PointLightProps
+    rectAreaLight: RectAreaLightProps
+    hemisphereLight: HemisphereLightProps
+    directionalLightShadow: DirectionalLightShadowProps
+    directionalLight: DirectionalLightProps
+    ambientLight: AmbientLightProps
+    lightShadow: LightShadowProps
+    ambientLightProbe: AmbientLightProbeProps
+    hemisphereLightProbe: HemisphereLightProbeProps
+    lightProbe: LightProbeProps
 
     // helpers
-    spotLightHelper: ReactThreeFiber.SpotLightHelperProps
-    skeletonHelper: ReactThreeFiber.SkeletonHelperProps
-    pointLightHelper: ReactThreeFiber.PointLightHelperProps
-    hemisphereLightHelper: ReactThreeFiber.HemisphereLightHelperProps
-    gridHelper: ReactThreeFiber.GridHelperProps
-    polarGridHelper: ReactThreeFiber.PolarGridHelperProps
-    directionalLightHelper: ReactThreeFiber.DirectionalLightHelperProps
-    cameraHelper: ReactThreeFiber.CameraHelperProps
-    boxHelper: ReactThreeFiber.BoxHelperProps
-    box3Helper: ReactThreeFiber.Box3HelperProps
-    planeHelper: ReactThreeFiber.PlaneHelperProps
-    arrowHelper: ReactThreeFiber.ArrowHelperProps
-    axesHelper: ReactThreeFiber.AxesHelperProps
+    spotLightHelper: SpotLightHelperProps
+    skeletonHelper: SkeletonHelperProps
+    pointLightHelper: PointLightHelperProps
+    hemisphereLightHelper: HemisphereLightHelperProps
+    gridHelper: GridHelperProps
+    polarGridHelper: PolarGridHelperProps
+    directionalLightHelper: DirectionalLightHelperProps
+    cameraHelper: CameraHelperProps
+    boxHelper: BoxHelperProps
+    box3Helper: Box3HelperProps
+    planeHelper: PlaneHelperProps
+    arrowHelper: ArrowHelperProps
+    axesHelper: AxesHelperProps
 
     // textures
-    texture: ReactThreeFiber.TextureProps
-    videoTexture: ReactThreeFiber.VideoTextureProps
-    dataTexture: ReactThreeFiber.DataTextureProps
-    dataTexture3D: ReactThreeFiber.DataTexture3DProps
-    compressedTexture: ReactThreeFiber.CompressedTextureProps
-    cubeTexture: ReactThreeFiber.CubeTextureProps
-    canvasTexture: ReactThreeFiber.CanvasTextureProps
-    depthTexture: ReactThreeFiber.DepthTextureProps
+    texture: TextureProps
+    videoTexture: VideoTextureProps
+    dataTexture: DataTextureProps
+    dataTexture3D: DataTexture3DProps
+    compressedTexture: CompressedTextureProps
+    cubeTexture: CubeTextureProps
+    canvasTexture: CanvasTextureProps
+    depthTexture: DepthTextureProps
 
     // misc
-    raycaster: ReactThreeFiber.RaycasterProps
-    vector2: ReactThreeFiber.Vector2Props
-    vector3: ReactThreeFiber.Vector3Props
-    vector4: ReactThreeFiber.Vector4Props
-    euler: ReactThreeFiber.EulerProps
-    matrix3: ReactThreeFiber.Matrix3Props
-    matrix4: ReactThreeFiber.Matrix4Props
-    quaternion: ReactThreeFiber.QuaternionProps
-    bufferAttribute: ReactThreeFiber.BufferAttributeProps
-    instancedBufferAttribute: ReactThreeFiber.InstancedBufferAttributeProps
-    face3: ReactThreeFiber.Face3Props
-    color: ReactThreeFiber.ColorProps
-    fog: ReactThreeFiber.FogProps
+    raycaster: RaycasterProps
+    vector2: Vector2Props
+    vector3: Vector3Props
+    vector4: Vector4Props
+    euler: EulerProps
+    matrix3: Matrix3Props
+    matrix4: Matrix4Props
+    quaternion: QuaternionProps
+    bufferAttribute: BufferAttributeProps
+    instancedBufferAttribute: InstancedBufferAttributeProps
+    color: ColorProps
+    fog: FogProps
+    fogExp2: FogExp2Props
 }
