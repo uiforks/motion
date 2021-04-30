@@ -1,5 +1,5 @@
-import * as Three from "three"
+import { Object3D } from "three"
 
-export function getChildIndex(child: Three.Object3D) {
+export function getChildIndex(child: Object3D) {
     return child && child.parent ? child.parent.children.indexOf(child) : -1
 }

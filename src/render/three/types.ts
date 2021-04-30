@@ -1,7 +1,7 @@
-import * as ReactThreeFiber from "@react-three/fiber"
 import { Object3D } from "three"
 import { MotionProps } from "../../motion/types"
 import {
+    Object3DNode,
     AudioListenerProps,
     PositionalAudioProps,
     MeshProps,
@@ -134,10 +134,7 @@ import {
     FogExp2Props,
 } from "@react-three/fiber"
 
-export type Object3DProps = ReactThreeFiber.Object3DNode<
-    Object3D,
-    typeof Object3D
->
+export type Object3DProps = Object3DNode<Object3D, typeof Object3D>
 
 export type Object3DMotionProps = Object3DProps & MotionProps
 

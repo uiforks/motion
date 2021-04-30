@@ -1,10 +1,10 @@
 import { visualElement } from ".."
 import { ResolvedValues, VisualElementConfig } from "../types"
-import * as Three from "three"
 import { axisBox } from "../../utils/geometry"
 import { checkTargetForNewValues, getOrigin } from "../utils/setters"
 import { getChildIndex } from "./utils/get-child-index"
 import { isMotionValue } from "../../value/utils/is-motion-value"
+import { Color, Object3D } from "three"
 
 export interface ThreeRenderState {
     position?: [number, number, number]
@@ -24,7 +24,7 @@ const threeProperties = {
 const threePropertyNames = Object.keys(threeProperties)
 
 const config: VisualElementConfig<
-    Three.Object3D,
+    Object3D,
     ThreeRenderState,
     ThreeVisualElementOptions
 > = {
@@ -75,7 +75,7 @@ const config: VisualElementConfig<
     scrapeMotionValuesFromProps(props) {
         const newValues = {}
 
-        for (let key in props) {
+        for (const key in props) {
             const prop = props[key]
 
             if (isMotionValue(prop)) {
@@ -177,9 +177,7 @@ const config: VisualElementConfig<
 function setOnMaterial(threeObject: any, key: string, value: number) {
     if (threeObject.material) {
         if (key === "color") {
-            threeObject.material[key] = new Three.Color(
-                value
-            ).convertSRGBToLinear()
+            threeObject.material[key] = new Color(value).convertSRGBToLinear()
         } else {
             threeObject.material[key] = value
         }

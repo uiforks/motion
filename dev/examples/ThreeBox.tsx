@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react/jsx-pascal-case */
 import * as React from "react"
-import * as Three from "three"
+import * as THREE from "three"
 import { useState } from "react"
 import { AnimatePresence } from "@framer"
 import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber"
@@ -9,8 +9,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { motion } from "../../src/render/three/motion"
 import { useSpring } from "../../src"
 
-type Object3DWithStandardMaterial = Three.Object3D & {
-    material: Three.MeshStandardMaterial
+type Object3DWithStandardMaterial = THREE.Object3D & {
+    material: THREE.MeshStandardMaterial
 }
 
 const GRID_SIZE = 3
@@ -88,9 +88,9 @@ function Cursor() {
         arrow.material.metalness = 0
         label.material.metalness = 0
 
-        cursor.material.color = new Three.Color("#06f").convertSRGBToLinear()
-        arrow.material.color = new Three.Color("#06f").convertSRGBToLinear()
-        label.material.color = new Three.Color("#fff").convertSRGBToLinear()
+        cursor.material.color = new THREE.Color("#06f").convertSRGBToLinear()
+        arrow.material.color = new THREE.Color("#06f").convertSRGBToLinear()
+        label.material.color = new THREE.Color("#fff").convertSRGBToLinear()
 
         return gltf
     }, [gltf])
