@@ -3,6 +3,11 @@ import { AxisBox2D, Point2D } from "../../../types/geometry"
 import { ResolvedValues, VisualElement } from "../../../render/types"
 import { elementDragControls } from "../../../gestures/drag/VisualElementDragControls"
 import { createCrossfader } from "./crossfader"
+import {
+    getProjectionParent,
+    notifyLayoutReady,
+    pointElementTo,
+} from "../../../render/dom/projection/utils"
 
 export type LeadAndFollow = [
     VisualElement | undefined,
@@ -117,13 +122,14 @@ export function layoutStack(): LayoutStack {
                      * Point a lead to itself in case it was previously pointing
                      * to a different visual element
                      */
-                    child.pointTo(state.lead)
+                    pointElementTo(child, state.lead)
                 } else {
                     child.setVisibility(true)
                 }
 
                 const config: SharedLayoutAnimationConfig = {}
-                const prevParent = state.follow?.getProjectionParent()
+                const prevParent =
+                    state.follow && getProjectionParent(state.follow)
                 if (prevParent) {
                     /**
                      * We'll use this to determine if the element or its layoutId has been reparented.
@@ -146,10 +152,10 @@ export function layoutStack(): LayoutStack {
                         : crossfader.fromLead(transition)
                 }
 
-                child.notifyLayoutReady(config)
+                notifyLayoutReady(child, config)
             } else {
                 if (shouldCrossfade) {
-                    state.lead && child.pointTo(state.lead)
+                    state.lead && pointElementTo(child, state.lead)
                 } else {
                     child.setVisibility(false)
                 }

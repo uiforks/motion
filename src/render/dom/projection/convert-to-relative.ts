@@ -3,6 +3,7 @@ import { AxisBox2D } from "../../../types/geometry"
 import { eachAxis } from "../../../utils/each-axis"
 import { removeBoxTransforms } from "../../../utils/geometry/delta-apply"
 import { VisualElement } from "../../types"
+import { getProjectionParent, setProjectionTargetAxis } from "./utils"
 
 /**
  * Returns a boolean stating whether or not we converted the projection
@@ -12,7 +13,7 @@ export function convertToRelativeProjection(
     visualElement: VisualElement,
     isLayoutDrag: boolean = true
 ) {
-    const projectionParent = visualElement.getProjectionParent()
+    const projectionParent = getProjectionParent(visualElement)
 
     if (!projectionParent) return false
 
@@ -33,7 +34,8 @@ export function convertToRelativeProjection(
     }
 
     eachAxis((axis) =>
-        visualElement.setProjectionTargetAxis(
+        setProjectionTargetAxis(
+            visualElement,
             axis,
             offset[axis].min,
             offset[axis].max,

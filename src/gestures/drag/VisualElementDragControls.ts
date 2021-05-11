@@ -34,7 +34,16 @@ import { MotionProps } from "../../motion/types"
 import {
     collectProjectingAncestors,
     collectProjectingChildren,
+    enableLayoutProjection,
+    getProjectionParent,
+    lockProjectionTarget,
+    rebaseProjectionTarget,
+    setProjectionTargetAxis,
+    startLayoutAnimation,
+    stopLayoutAnimation,
+    unlockProjectionTarget,
     updateLayoutMeasurement,
+    scheduleUpdateLayoutProjection,
 } from "../../render/dom/projection/utils"
 import { progress } from "popmotion"
 import { convertToRelativeProjection } from "../../render/dom/projection/convert-to-relative"
@@ -154,7 +163,7 @@ export class VisualElementDragControls {
 
     constructor({ visualElement }: DragControlConfig) {
         this.visualElement = visualElement
-        this.visualElement.enableLayoutProjection()
+        enableLayoutProjection(visualElement)
         elementDragControls.set(visualElement, this)
     }
 
@@ -190,7 +199,7 @@ export class VisualElementDragControls {
                  * Apply a simple lock to the projection target. This ensures no animations
                  * can run on the projection box while this lock is active.
                  */
-                this.isLayoutDrag() && this.visualElement.lockProjectionTarget()
+                this.isLayoutDrag() && lockProjectionTarget(this.visualElement)
 
                 write(() => {
                     tree.forEach((element) => element.resetTransform())
@@ -217,13 +226,14 @@ export class VisualElementDragControls {
                     )
 
                     if (!isRelativeDrag) {
-                        this.visualElement.rebaseProjectionTarget(
+                        rebaseProjectionTarget(
+                            this.visualElement,
                             true,
                             this.visualElement.measureViewportBox(false)
                         )
                     }
 
-                    this.visualElement.scheduleUpdateLayoutProjection()
+                    scheduleUpdateLayoutProjection(this.visualElement)
 
                     /**
                      * When dragging starts, we want to find where the cursor is relative to the bounding box
@@ -413,7 +423,7 @@ export class VisualElementDragControls {
     }
 
     cancelDrag() {
-        this.visualElement.unlockProjectionTarget()
+        unlockProjectionTarget(this.visualElement)
         this.cancelLayout?.()
         this.isDragging = false
         this.panSession && this.panSession.end()
@@ -515,7 +525,7 @@ export class VisualElementDragControls {
         )
 
         // Update the axis viewport target with this new min and the length
-        this.visualElement.setProjectionTargetAxis(axis, min, min + axisLength)
+        setProjectionTargetAxis(this.visualElement, axis, min, min + axisLength)
     }
 
     setProps({
@@ -588,7 +598,7 @@ export class VisualElementDragControls {
             Object.keys(constraints).length &&
             this.isLayoutDrag()
         ) {
-            const projectionParent = this.visualElement.getProjectionParent()
+            const projectionParent = getProjectionParent(this.visualElement)
 
             if (projectionParent) {
                 const relativeConstraints = calcRelativeOffset(
@@ -639,7 +649,8 @@ export class VisualElementDragControls {
             // otherwise we just have to animate the `MotionValue` itself.
             return this.getAxisMotionValue(axis)
                 ? this.startAxisValueAnimation(axis, inertia)
-                : this.visualElement.startLayoutAnimation(
+                : startLayoutAnimation(
+                      this.visualElement,
                       axis,
                       inertia,
                       isRelative
@@ -657,7 +668,7 @@ export class VisualElementDragControls {
             const axisValue = this.getAxisMotionValue(axis)
             axisValue
                 ? axisValue.stop()
-                : this.visualElement.stopLayoutAnimation()
+                : stopLayoutAnimation(this.visualElement)
         })
     }
 
@@ -706,7 +717,7 @@ export class VisualElementDragControls {
                     boxProgress[axis]
                 )
 
-                this.visualElement.setProjectionTargetAxis(axis, min, max)
+                setProjectionTargetAxis(this.visualElement, axis, min, max)
             })
         })
 

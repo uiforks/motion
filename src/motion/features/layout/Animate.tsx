@@ -17,6 +17,12 @@ import { axisBox } from "../../../utils/geometry"
 import { addScaleCorrection } from "../../../render/dom/projection/scale-correction"
 import { defaultScaleCorrectors } from "../../../render/dom/projection/default-scale-correctors"
 import { VisualElement } from "../../../render/types"
+import {
+    enableLayoutProjection,
+    getProjectionAnimationProgress,
+    getProjectionParent,
+    setProjectionTargetAxis,
+} from "../../../render/dom/projection/utils"
 
 interface AxisLocks {
     x?: () => void
@@ -63,7 +69,7 @@ class Animate extends React.Component<AnimateProps> {
     componentDidMount() {
         const { visualElement } = this.props
         visualElement.animateMotionValue = startAnimation
-        visualElement.enableLayoutProjection()
+        enableLayoutProjection(visualElement)
         this.unsubLayoutReady = visualElement.onLayoutUpdate(this.animate)
         visualElement.layoutSafeToRemove = () => this.safeToRemove()
 
@@ -120,7 +126,7 @@ class Animate extends React.Component<AnimateProps> {
          * allows us to add orchestrated animations.
          */
         let isRelative = false
-        const projectionParent = visualElement.getProjectionParent()
+        const projectionParent = getProjectionParent(visualElement)
 
         if (projectionParent) {
             let prevParentViewportBox = projectionParent.prevViewportBox
@@ -197,7 +203,8 @@ class Animate extends React.Component<AnimateProps> {
 
                 // If the box has remained in the same place, immediately set the axis target
                 // to the final desired state
-                return visualElement.setProjectionTargetAxis(
+                return setProjectionTargetAxis(
+                    visualElement,
                     axis,
                     target[axis].min,
                     target[axis].max,
@@ -247,7 +254,7 @@ class Animate extends React.Component<AnimateProps> {
 
         const { visualElement } = this.props
         const frameTarget = this.frameTarget[axis]
-        const layoutProgress = visualElement.getProjectionAnimationProgress()[
+        const layoutProgress = getProjectionAnimationProgress(visualElement)[
             axis
         ]
 
@@ -270,7 +277,8 @@ class Animate extends React.Component<AnimateProps> {
             // Tween the axis and update the visualElement with the latest values
             tweenAxis(frameTarget, origin, target, p)
 
-            visualElement.setProjectionTargetAxis(
+            setProjectionTargetAxis(
+                visualElement,
                 axis,
                 frameTarget.min,
                 frameTarget.max,

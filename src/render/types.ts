@@ -1,9 +1,6 @@
 import * as React from "react"
 import { startAnimation } from "../animation/utils/transitions"
-import {
-    Presence,
-    SharedLayoutAnimationConfig,
-} from "../components/AnimateSharedLayout/types"
+import { Presence } from "../components/AnimateSharedLayout/types"
 import { Crossfader } from "../components/AnimateSharedLayout/utils/crossfader"
 import { MotionProps } from "../motion/types"
 import { VisualState } from "../motion/utils/use-visual-state"
@@ -14,6 +11,7 @@ import { AnimationState } from "./utils/animation-state"
 import { LifecycleManager } from "./utils/lifecycles"
 import { LayoutState, TargetProjection } from "./utils/state"
 import { FlatTree } from "./utils/flat-tree"
+import { ProjectionMethods } from "./dom/projection/utils"
 
 export interface MotionPoint {
     x: MotionValue<number>
@@ -25,6 +23,7 @@ export interface VisualElement<Instance = any, RenderState = any>
     treeType: string
     depth: number
     parent?: VisualElement
+    projectionParent?: VisualElement
     children: Set<VisualElement>
     variantChildren?: Set<VisualElement>
     current: Instance | null
@@ -41,14 +40,14 @@ export interface VisualElement<Instance = any, RenderState = any>
     getInstance(): Instance | null
     path: VisualElement[]
     sortNodePosition(element: VisualElement): number
-
     addVariantChild(child: VisualElement): undefined | (() => void)
     getClosestVariantNode(): VisualElement | undefined
-
     setCrossfader(crossfader: Crossfader): void
-    layoutSafeToRemove?: () => void
+    measureViewportBox(withTransform?: boolean): AxisBox2D
 
     animateMotionValue?: typeof startAnimation
+    projectionMethods?: ProjectionMethods
+    scheduleUpdateLayoutProjection(): void
 
     /**
      * Visibility
@@ -56,6 +55,9 @@ export interface VisualElement<Instance = any, RenderState = any>
     isVisible?: boolean
     setVisibility(visibility: boolean): void
 
+    /**
+     * Values
+     */
     hasValue(key: string): boolean
     addValue(key: string, value: MotionValue<any>): void
     removeValue(key: string): void
@@ -72,7 +74,16 @@ export interface VisualElement<Instance = any, RenderState = any>
     getStaticValue(key: string): number | string | undefined
     setStaticValue(key: string, value: number | string): void
     getLatestValues(): ResolvedValues
+    getLayoutState: () => LayoutState
+    projectionTargetProgress?: MotionPoint
+    hasViewportBoxUpdated?: boolean
+
+    /**
+     * Render
+     */
+    build(): RenderState
     scheduleRender(): void
+    syncRender(): void
 
     setProps(props: MotionProps): void
     getProps(): MotionProps
@@ -92,46 +103,10 @@ export interface VisualElement<Instance = any, RenderState = any>
               whileTap?: string | string[]
           }
 
-    build(): RenderState
-    syncRender(): void
-
     /**
      * Layout projection - perhaps a candidate for lazy-loading
      * or an external interface. Move into Projection?
      */
-    enableLayoutProjection(): void
-    lockProjectionTarget(): void
-    unlockProjectionTarget(): void
-    rebaseProjectionTarget(force?: boolean, sourceBox?: AxisBox2D): void
-    measureViewportBox(withTransform?: boolean): AxisBox2D
-    getLayoutState: () => LayoutState
-    getProjectionParent: () => VisualElement | false
-    getProjectionAnimationProgress(): MotionPoint
-    setProjectionTargetAxis(
-        axis: "x" | "y",
-        min: number,
-        max: number,
-        isRelative?: boolean
-    ): void
-    startLayoutAnimation(
-        axis: "x" | "y",
-        transition: Transition,
-        isRelative: boolean
-    ): Promise<any>
-    stopLayoutAnimation(): void
-    updateLayoutProjection(): void
-    updateTreeLayoutProjection(): void
-    resolveRelativeTargetBox(): void
-    makeTargetAnimatable(
-        target: TargetAndTransition,
-        isLive?: boolean
-    ): TargetAndTransition
-    scheduleUpdateLayoutProjection(): void
-    notifyLayoutReady(config?: SharedLayoutAnimationConfig): void
-    pointTo(element: VisualElement): void
-    resetTransform(): void
-    restoreTransform(): void
-    shouldResetTransform(): boolean
 
     isPresent: boolean
     presence: Presence
@@ -140,6 +115,18 @@ export interface VisualElement<Instance = any, RenderState = any>
     prevViewportBox?: AxisBox2D
     getLayoutId(): string | undefined
     animationState?: AnimationState
+    resetTransform(): void
+    restoreTransform(): void
+    shouldResetTransform(): boolean
+    makeTargetAnimatable(
+        target: TargetAndTransition,
+        isLive?: boolean
+    ): TargetAndTransition
+
+    leadProjection: TargetProjection
+    leadLatestValues?: ResolvedValues
+    layoutSafeToRemove?: () => void
+    unsubscribeFromLeadVisualElement?: Function
 }
 
 export interface VisualElementConfig<Instance, RenderState, Options> {

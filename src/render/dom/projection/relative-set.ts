@@ -1,12 +1,17 @@
 import { calcRelativeOffset } from "../../../motion/features/layout/utils"
 import { eachAxis } from "../../../utils/each-axis"
 import { VisualElement } from "../../types"
+import {
+    getProjectionParent,
+    rebaseProjectionTarget,
+    setProjectionTargetAxis,
+} from "./utils"
 
 export function setCurrentViewportBox(visualElement: VisualElement) {
-    const projectionParent = visualElement.getProjectionParent()
+    const projectionParent = getProjectionParent(visualElement)
 
     if (!projectionParent) {
-        visualElement.rebaseProjectionTarget()
+        rebaseProjectionTarget(visualElement)
         return
     }
 
@@ -16,7 +21,8 @@ export function setCurrentViewportBox(visualElement: VisualElement) {
     )
 
     eachAxis((axis) => {
-        visualElement.setProjectionTargetAxis(
+        setProjectionTargetAxis(
+            visualElement,
             axis,
             relativeOffset[axis].min,
             relativeOffset[axis].max,

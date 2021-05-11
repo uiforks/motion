@@ -1,6 +1,7 @@
 import sync, { flushSync } from "framesync"
 import {
     collectProjectingAncestors,
+    notifyLayoutReady,
     updateLayoutMeasurement,
 } from "../../../render/dom/projection/utils"
 import {
@@ -15,7 +16,7 @@ import { Presence, SyncLayoutBatcher, SyncLayoutLifecycles } from "../types"
  * Default handlers for batching VisualElements
  */
 const defaultHandler: SyncLayoutLifecycles = {
-    layoutReady: (child) => child.notifyLayoutReady(),
+    layoutReady: notifyLayoutReady,
 }
 
 /**

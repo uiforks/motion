@@ -11,7 +11,10 @@ import { MotionContext, MotionContextProps } from "../../context/MotionContext"
 import { resetRotate } from "./utils/rotate"
 import { VisualElement } from "../../render/types"
 import { createBatcher } from "./utils/batcher"
-import { snapshotViewportBox } from "../../render/dom/projection/utils"
+import {
+    notifyLayoutReady,
+    snapshotViewportBox,
+} from "../../render/dom/projection/utils"
 
 /**
  * @public
@@ -115,7 +118,7 @@ export class AnimateSharedLayout extends React.Component<
                     const stack = this.getStack(child)!
                     stack.animate(child, type === "crossfade")
                 } else {
-                    child.notifyLayoutReady()
+                    notifyLayoutReady(child)
                 }
             },
             parent: (this.context as MotionContextProps).visualElement,
