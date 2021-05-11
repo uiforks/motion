@@ -923,7 +923,6 @@ export interface VisualElement<Instance = any, RenderState = any> extends Lifecy
     animationState?: AnimationState;
     // (undocumented)
     blockInitialAnimation?: boolean;
-    // (undocumented)
     build(): RenderState;
     // (undocumented)
     children: Set<VisualElement>;
@@ -931,7 +930,6 @@ export interface VisualElement<Instance = any, RenderState = any> extends Lifecy
     current: Instance | null;
     // (undocumented)
     depth: number;
-    enableLayoutProjection(): void;
     // (undocumented)
     forEachValue(callback: (value: MotionValue, key: string) => void): void;
     // (undocumented)
@@ -950,20 +948,14 @@ export interface VisualElement<Instance = any, RenderState = any> extends Lifecy
     // 
     // (undocumented)
     getLayoutState: () => LayoutState;
-    // Warning: (ae-forgotten-export) The symbol "MotionPoint" needs to be exported by the entry point index.d.ts
-    // 
-    // (undocumented)
-    getProjectionAnimationProgress(): MotionPoint;
-    // (undocumented)
-    getProjectionParent: () => VisualElement | false;
     // (undocumented)
     getProps(): MotionProps;
     // (undocumented)
     getStaticValue(key: string): number | string | undefined;
     // (undocumented)
-    getValue(key: string, defaultValue?: string | number): undefined | MotionValue;
-    // (undocumented)
     getValue(key: string, defaultValue: string | number): MotionValue;
+    // (undocumented)
+    getValue(key: string, defaultValue?: string | number): undefined | MotionValue;
     // (undocumented)
     getValue(key: string): undefined | MotionValue;
     // (undocumented)
@@ -978,13 +970,13 @@ export interface VisualElement<Instance = any, RenderState = any> extends Lifecy
         whileFocus?: string | string[];
         whileTap?: string | string[];
     };
-    // (undocumented)
     hasValue(key: string): boolean;
+    // (undocumented)
+    hasViewportBoxUpdated?: boolean;
     // (undocumented)
     isMounted(): boolean;
     // (undocumented)
     isPresenceRoot?: boolean;
-    // (undocumented)
     isPresent: boolean;
     // (undocumented)
     isProjectionReady: () => boolean;
@@ -996,7 +988,9 @@ export interface VisualElement<Instance = any, RenderState = any> extends Lifecy
     // (undocumented)
     layoutTree: FlatTree;
     // (undocumented)
-    lockProjectionTarget(): void;
+    leadLatestValues?: ResolvedValues;
+    // (undocumented)
+    leadProjection: TargetProjection;
     // (undocumented)
     makeTargetAnimatable(target: TargetAndTransition, isLive?: boolean): TargetAndTransition;
     // (undocumented)
@@ -1006,13 +1000,9 @@ export interface VisualElement<Instance = any, RenderState = any> extends Lifecy
     // (undocumented)
     mount(instance: Instance): void;
     // (undocumented)
-    notifyLayoutReady(config?: SharedLayoutAnimationConfig): void;
-    // (undocumented)
     parent?: VisualElement;
     // (undocumented)
     path: VisualElement[];
-    // (undocumented)
-    pointTo(element: VisualElement): void;
     // Warning: (ae-forgotten-export) The symbol "Presence" needs to be exported by the entry point index.d.ts
     // 
     // (undocumented)
@@ -1027,16 +1017,22 @@ export interface VisualElement<Instance = any, RenderState = any> extends Lifecy
     // 
     // (undocumented)
     projection: TargetProjection;
+    // Warning: (ae-forgotten-export) The symbol "ProjectionMethods" needs to be exported by the entry point index.d.ts
+    // 
+    // (undocumented)
+    projectionMethods?: ProjectionMethods;
+    // (undocumented)
+    projectionParent?: VisualElement;
+    // Warning: (ae-forgotten-export) The symbol "MotionPoint" needs to be exported by the entry point index.d.ts
+    // 
+    // (undocumented)
+    projectionTargetProgress?: MotionPoint;
     // (undocumented)
     readValue(key: string): string | number | undefined | null;
-    // (undocumented)
-    rebaseProjectionTarget(force?: boolean, sourceBox?: AxisBox2D): void;
     // (undocumented)
     removeValue(key: string): void;
     // (undocumented)
     resetTransform(): void;
-    // (undocumented)
-    resolveRelativeTargetBox(): void;
     // (undocumented)
     restoreTransform(): void;
     // (undocumented)
@@ -1048,8 +1044,6 @@ export interface VisualElement<Instance = any, RenderState = any> extends Lifecy
     // (undocumented)
     setCrossfader(crossfader: Crossfader): void;
     // (undocumented)
-    setProjectionTargetAxis(axis: "x" | "y", min: number, max: number, isRelative?: boolean): void;
-    // (undocumented)
     setProps(props: MotionProps): void;
     // (undocumented)
     setStaticValue(key: string, value: number | string): void;
@@ -1060,21 +1054,13 @@ export interface VisualElement<Instance = any, RenderState = any> extends Lifecy
     // (undocumented)
     sortNodePosition(element: VisualElement): number;
     // (undocumented)
-    startLayoutAnimation(axis: "x" | "y", transition: Transition, isRelative: boolean): Promise<any>;
-    // (undocumented)
-    stopLayoutAnimation(): void;
-    // (undocumented)
     syncRender(): void;
     // (undocumented)
     treeType: string;
     // (undocumented)
-    unlockProjectionTarget(): void;
-    // (undocumented)
     unmount(): void;
     // (undocumented)
-    updateLayoutProjection(): void;
-    // (undocumented)
-    updateTreeLayoutProjection(): void;
+    unsubscribeFromLeadVisualElement?: Function;
     // (undocumented)
     variantChildren?: Set<VisualElement>;
 }

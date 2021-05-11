@@ -4,6 +4,7 @@ import {
     Presence,
     SharedLayoutAnimationConfig,
 } from "../../../components/AnimateSharedLayout/types"
+import { calcRelativeOffset } from "../../../motion/features/layout/utils"
 import { Transition } from "../../../types"
 import { Axis } from "../../../types/geometry"
 import { eachAxis } from "../../../utils/each-axis"
@@ -16,7 +17,6 @@ import { VisualElement } from "../../types"
 import { compareByDepth } from "../../utils/compare-by-depth"
 import { isDraggable } from "../../utils/is-draggable"
 import { updateLayoutDeltas } from "../../utils/projection"
-import { setCurrentViewportBox } from "./relative-set"
 
 function isProjecting(visualElement: VisualElement) {
     const { isEnabled } = visualElement.projection
@@ -345,4 +345,28 @@ export function lockProjectionTarget({ projection }: VisualElement) {
 export function unlockProjectionTarget(element: VisualElement) {
     stopLayoutAnimation(element)
     element.projection.isTargetLocked = false
+}
+
+export function setCurrentViewportBox(visualElement: VisualElement) {
+    const projectionParent = getProjectionParent(visualElement)
+
+    if (!projectionParent) {
+        rebaseProjectionTarget(visualElement)
+        return
+    }
+
+    const relativeOffset = calcRelativeOffset(
+        projectionParent.getLayoutState().layout,
+        visualElement.getLayoutState().layout
+    )
+
+    eachAxis((axis) => {
+        setProjectionTargetAxis(
+            visualElement,
+            axis,
+            relativeOffset[axis].min,
+            relativeOffset[axis].max,
+            true
+        )
+    })
 }

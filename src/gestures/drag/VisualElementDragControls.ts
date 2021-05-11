@@ -43,7 +43,6 @@ import {
     stopLayoutAnimation,
     unlockProjectionTarget,
     updateLayoutMeasurement,
-    scheduleUpdateLayoutProjection,
 } from "../../render/dom/projection/utils"
 import { progress } from "popmotion"
 import { convertToRelativeProjection } from "../../render/dom/projection/convert-to-relative"
@@ -233,7 +232,7 @@ export class VisualElementDragControls {
                         )
                     }
 
-                    scheduleUpdateLayoutProjection(this.visualElement)
+                    this.visualElement.scheduleUpdateLayoutProjection()
 
                     /**
                      * When dragging starts, we want to find where the cursor is relative to the bounding box

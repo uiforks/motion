@@ -3,16 +3,15 @@ import { Presence } from "../components/AnimateSharedLayout/types"
 import { Crossfader } from "../components/AnimateSharedLayout/utils/crossfader"
 import { MotionStyle } from "../motion/types"
 import {
-    applyBoxTransforms,
+    // applyBoxTransforms,
     removeBoxTransforms,
 } from "../utils/geometry/delta-apply"
-import { updateBoxDelta } from "../utils/geometry/delta-calc"
+// import { updateBoxDelta } from "../utils/geometry/delta-calc"
 import { motionValue, MotionValue } from "../value"
 import { isMotionValue } from "../value/utils/is-motion-value"
 import {
     VisualElement,
     VisualElementConfig,
-    MotionPoint,
     VisualElementOptions,
 } from "./types"
 import { variantPriorityOrder } from "./utils/animation-state"
@@ -25,6 +24,7 @@ import {
     checkIfVariantNode,
     isVariantLabel,
 } from "./utils/variants"
+import { pointElementTo } from "./dom/projection/utils"
 
 export const visualElement = <Instance, MutableState, Options>({
     treeType = "",
@@ -105,14 +105,6 @@ export const visualElement = <Instance, MutableState, Options>({
     let prevMotionValues: MotionStyle = {}
 
     /**
-     * x/y motion values that track the progress of initiated layout
-     * animations.
-     *
-     * TODO: Target for removal
-     */
-    let projectionTargetProgress: MotionPoint
-
-    /**
      * When values are removed from all animation props we need to search
      * for a fallback value to animate to. These values are tracked in baseTarget.
      */
@@ -134,31 +126,31 @@ export const visualElement = <Instance, MutableState, Options>({
     function render() {
         if (!instance) return
 
-        if (element.isProjectionReady()) {
-            /**
-             * Apply the latest user-set transforms to the targetBox to produce the targetBoxFinal.
-             * This is the final box that we will then project into by calculating a transform delta and
-             * applying it to the corrected box.
-             */
-            applyBoxTransforms(
-                leadProjection.targetFinal,
-                leadProjection.target,
-                leadLatestValues
-            )
+        // if (element.isProjectionReady()) {
+        //     /**
+        //      * Apply the latest user-set transforms to the targetBox to produce the targetBoxFinal.
+        //      * This is the final box that we will then project into by calculating a transform delta and
+        //      * applying it to the corrected box.
+        //      */
+        //     applyBoxTransforms(
+        //         element.leadProjection.targetFinal,
+        //         element.leadProjection.target,
+        //         element.leadLatestValues!
+        //     )
 
-            /**
-             * Update the delta between the corrected box and the final target box, after
-             * user-set transforms are applied to it. This will be used by the renderer to
-             * create a transform style that will reproject the element from its actual layout
-             * into the desired bounding box.
-             */
-            updateBoxDelta(
-                layoutState.deltaFinal,
-                layoutState.layoutCorrected,
-                leadProjection.targetFinal,
-                latestValues
-            )
-        }
+        //     /**
+        //      * Update the delta between the corrected box and the final target box, after
+        //      * user-set transforms are applied to it. This will be used by the renderer to
+        //      * create a transform style that will reproject the element from its actual layout
+        //      * into the desired bounding box.
+        //      */
+        //     updateBoxDelta(
+        //         layoutState.deltaFinal,
+        //         layoutState.layoutCorrected,
+        //         element.leadProjection.targetFinal,
+        //         latestValues
+        //     )
+        // }
 
         triggerBuild()
 
@@ -177,7 +169,7 @@ export const visualElement = <Instance, MutableState, Options>({
             element,
             renderState,
             valuesToRender,
-            leadProjection,
+            element.leadProjection,
             layoutState,
             options,
             props
@@ -265,6 +257,7 @@ export const visualElement = <Instance, MutableState, Options>({
         presenceId,
 
         projection,
+        leadProjection: projection,
 
         /**
          * If this component is part of the variant tree, it should track
@@ -312,7 +305,7 @@ export const visualElement = <Instance, MutableState, Options>({
 
         mount(newInstance: Instance) {
             instance = element.current = newInstance
-            element.pointTo(element)
+            pointElementTo(element, element)
 
             if (isVariantNode && parent && !isControllingVariants) {
                 removeFromVariantTree = parent?.addVariantChild(element)
@@ -326,7 +319,6 @@ export const visualElement = <Instance, MutableState, Options>({
         unmount() {
             cancelSync.update(update)
             cancelSync.render(render)
-            cancelSync.preRender(element.updateLayoutProjection)
             valueSubscriptions.forEach((remove) => remove())
             element.layoutTree.remove(element)
             removeFromVariantTree?.()
@@ -334,7 +326,7 @@ export const visualElement = <Instance, MutableState, Options>({
             lifecycles.clearAllListeners()
 
             if (element.projectionMethods) {
-                element.projectionMethods.destory()
+                element.projectionMethods.destroy()
             }
         },
 
@@ -375,11 +367,7 @@ export const visualElement = <Instance, MutableState, Options>({
         scheduleUpdateLayoutProjection: parent
             ? parent.scheduleUpdateLayoutProjection
             : () => {
-                  sync.preRender(
-                      element.updateTreeLayoutProjection,
-                      false,
-                      true
-                  )
+                  sync.preRender(() => {}, false, true)
               },
 
         /**
