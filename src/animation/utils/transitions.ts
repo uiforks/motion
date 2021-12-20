@@ -11,6 +11,8 @@ import { isAnimatable } from "./is-animatable"
 import { getDefaultTransition } from "./default-transitions"
 import { warning } from "hey-listen"
 import { getAnimatableNone } from "../../render/dom/value-types/animatable-none"
+import { instantAnimationState } from "../../utils/use-instant-transition-state"
+import { resolveFinalValueInKeyframes } from "../../utils/resolve-value"
 
 type StopAnimation = { stop: () => void }
 
@@ -106,7 +108,7 @@ export function convertTransitionToAnimationOptions<T>({
  */
 export function getDelayFromTransition(transition: Transition, key: string) {
     const valueTransition = getValueTransition(transition, key) || {}
-    return valueTransition.delay ?? 0
+    return valueTransition.delay ?? transition.delay ?? 0
 }
 
 export function hydrateKeyframes(options: PermissiveTransitionDefinition) {
@@ -213,8 +215,10 @@ function getAnimation(
     }
 
     function set(): StopAnimation {
-        value.set(target)
+        const finalTarget = resolveFinalValueInKeyframes(target)
+        value.set(finalTarget)
         onComplete()
+        valueTransition?.onUpdate?.(finalTarget)
         valueTransition?.onComplete?.()
         return { stop: () => {} }
     }
@@ -259,6 +263,10 @@ export function startAnimation(
     target: ResolvedValueTarget,
     transition: Transition = {}
 ) {
+    if (instantAnimationState.current) {
+        transition = { type: false }
+    }
+
     return value.start((onComplete) => {
         let delayTimer: number
         let controls: StopAnimation

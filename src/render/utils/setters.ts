@@ -7,6 +7,7 @@ import {
     Transition,
 } from "../../types"
 import { isNumericalString } from "../../utils/is-numerical-string"
+import { isZeroValueString } from "../../utils/is-zero-value-string"
 import { resolveFinalValueInKeyframes } from "../../utils/resolve-value"
 import { motionValue } from "../../value"
 import { getAnimatableNone } from "../dom/value-types/animatable-none"
@@ -36,9 +37,11 @@ export function setTarget(
     definition: string | TargetAndTransition | TargetResolver
 ) {
     const resolved = resolveVariant(visualElement, definition)
-    let { transitionEnd = {}, transition = {}, ...target } = resolved
-        ? visualElement.makeTargetAnimatable(resolved, false)
-        : {}
+    let {
+        transitionEnd = {},
+        transition = {},
+        ...target
+    } = resolved ? visualElement.makeTargetAnimatable(resolved, false) : {}
 
     target = { ...target, ...transitionEnd }
 
@@ -114,7 +117,10 @@ export function checkTargetForNewValues(
          */
         if (value === undefined || value === null) continue
 
-        if (typeof value === "string" && isNumericalString(value)) {
+        if (
+            typeof value === "string" &&
+            (isNumericalString(value) || isZeroValueString(value))
+        ) {
             // If this is a number read as a string, ie "0" or "200", convert it to a number
             value = parseFloat(value)
         } else if (!findValueType(value) && complex.test(targetValue)) {

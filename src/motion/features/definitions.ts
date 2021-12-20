@@ -1,17 +1,12 @@
 import { MotionProps } from "../types"
-import { FeatureComponents, FeatureDefinitions } from "./types"
+import { FeatureComponents, LoadedFeatures } from "./types"
 
 const createDefinition = (propNames: string[]) => ({
     isEnabled: (props: MotionProps) => propNames.some((name) => !!props[name]),
 })
 
-export const featureDefinitions: FeatureDefinitions = {
-    measureLayout: createDefinition([
-        "layout",
-        "layoutId",
-        "drag",
-        "_layoutResetTransform",
-    ]),
+export const featureDefinitions: LoadedFeatures = {
+    measureLayout: createDefinition(["layout", "layoutId", "drag"]),
     animation: createDefinition([
         "animate",
         "exit",
@@ -20,6 +15,7 @@ export const featureDefinitions: FeatureDefinitions = {
         "whileTap",
         "whileFocus",
         "whileDrag",
+        "whileInView",
     ]),
     exit: createDefinition(["exit"]),
     drag: createDefinition(["drag", "dragControls"]),
@@ -32,12 +28,21 @@ export const featureDefinitions: FeatureDefinitions = {
         "onPanSessionStart",
         "onPanEnd",
     ]),
-    layoutAnimation: createDefinition(["layout", "layoutId"]),
+    inView: createDefinition([
+        "whileInView",
+        "onViewportEnter",
+        "onViewportLeave",
+    ]),
 }
 
 export function loadFeatures(features: FeatureComponents) {
     for (const key in features) {
-        const Component = features[key]
-        if (Component !== null) featureDefinitions[key].Component = Component
+        if (features[key] === null) continue
+
+        if (key === "projectionNodeConstructor") {
+            featureDefinitions.projectionNodeConstructor = features[key]
+        } else {
+            featureDefinitions[key].Component = features[key]
+        }
     }
 }

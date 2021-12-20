@@ -2,9 +2,186 @@
 
 Framer Motion adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.5.5] 2021-12-17
+
+### Fixed
+
+-   Using `dpr` prop in layout animation calculations.
+
+## [5.5.4] 2021-12-16
+
+### Fixed
+
+-   Improving performance of `LayoutCamera`.
+-   Removing `data-projection-id` in static mode.
+
+## [5.5.3] 2021-12-15
+
+### Fixed
+
+-   Improving performance of `LayoutCamera` and fixing final flash.
+
+## [5.5.2] 2021-12-15
+
+### Fixed
+
+-   Reimplemented dynamic resolution scaling for `LayoutCamera`.
+
+## [5.5.1] 2021-12-14
+
+### Fixed
+
+-   Removed dynamic resolution scaling from `LayoutCamera` to fix crash in iOS.
+
+## [5.5.0] 2021-12-14
+
 ### Added
 
--   `layout="size"` for size-only layout animations.
+-   `LayoutCamera` and `LayoutOrthographicCamera`.
+
+## [5.4.5] 2021-12-09
+
+### Fixed
+
+-   Passing `MotionConfigContext` through from DOM into 3D.
+
+## [5.4.4] 2021-12-08
+
+### Fixed
+
+-   Fixing variant animations across DOM and 3D boundaries via `MotionCanvas`.
+
+## [5.4.3] 2021-12-07
+
+### Fixed
+
+-   Fixing export paths. [PR by @edoardolincetto](https://github.com/framer/motion/pull/1385).
+
+## [5.4.2] 2021-12-07
+
+### Fixed
+
+-   Sharing `MotionContext` across Framer Motion and Framer Motion 3D environments in CommonJS environments.
+
+## [5.4.1] 2021-12-06
+
+### Fixed
+
+-   3D entry point overwriting ES modules with dropped exports.
+
+## [5.4.0] 2021-12-06
+
+### Added
+
+-   `useAnimationFrame`
+
+## [5.3.3] 2021-11-24
+
+### Fixed
+
+-   Fixing animating to CSS variables with `SVGElement`. [Issue](https://github.com/framer/motion/issues/1334)
+-   Unsetting `z-index` for resting `Reorder.Item` components. [Issue](https://github.com/framer/motion/issues/1313)
+-   Forward native drag listeners to `draggable` elements. [Issue](https://github.com/framer/motion/issues/1248)
+-   Authors can now support browsers without `Proxy` by using `motion("div")` syntax. [Issue](https://github.com/framer/motion/issues/1178)
+
+## [5.3.2] 2021-11-23
+
+### Fixed
+
+-   Ensuring forced renders are batched so sibling `AnimatePresence` renders are triggered together. [Issue](https://github.com/framer/motion/issues/1358)
+-   Viewport enter/leave event handlers are passed `IntersectionObserverEntry` or `null` if `IntersectionObserver` is not supported on the device. [Issue](https://github.com/framer/motion/issues/1364)
+-   No longer applying touch scroll-disabling styles if `dragListener` is set to `false`. [Issue](https://github.com/framer/motion/issues/1341)
+
+## [5.3.1] 2021-11-19
+
+### Added
+
+-   `useInstantTransition` hook for internal use.
+
+### Fixed
+
+-   Removing `layoutDependency` from forwarded props. [Issue](https://github.com/framer/motion/issues/1350)
+-   `Reorder.Item` correctly fires `onDrag`. [Issue](https://github.com/framer/motion/issues/1348)
+-   Fires `onPressStart` and `onHoverStart` **after** triggering animations.
+-   Replay keyframes when variant changes. [Issue](https://github.com/framer/motion/issues/1346)
+-   Correctly SSR final keyframe when `initial` is `false`.
+
+## [5.3.0] 2021-11-11
+
+### Added
+
+-   `whileInView`, `onViewportEnter` and `onViewportLeave` props.
+
+## [5.2.1] 2021-11-05
+
+### Fixed
+
+-   Fixing unit conversion for `x` and `y` styles. [Issue](https://github.com/framer/motion/issues/1336)
+
+## [5.2.0] 2021-11-04
+
+### Added
+
+-   Enable animation between hsla and rgba/hex.
+
+### Fixed
+
+-   Fixing HSLA color interpolation. [Issue](https://github.com/framer/motion/issues/1324)
+
+## [5.1.0] 2021-11-02
+
+### Added
+
+-   Adding path drawing support for `circle`, `ellipse`, `line`, `path`, `polygon`, `polyline` and `rect` components.
+-   Add SSR support for `pathLength`.
+
+### Fixed
+
+-   Fixed SSR for `pathLength`.
+-   Downgrading `whileFocus` to lowest gesture priority. [Issue](https://github.com/framer/motion/issues/1221)
+-   Fixed path length for elements with `vectorEffect="non-scaling-stroke"` [Issue](https://github.com/framer/motion/issues/521)
+-   Stripping `dragSnapToOrigin` from DOM output. [PR by @Evalon](https://github.com/framer/motion/pull/1326)
+
+## [5.0.2] 2021-11-02
+
+### Fixed
+
+-   Convert x/y from percent to pixels before drag. [Issue](https://github.com/framer/motion/issues/424)
+-   Dynamic functions passed to `controls.start()` can now return variant names. [Issue](https://github.com/framer/motion/issues/503)
+-   Factors in padding when measuring elements for `width`/`height` unit conversion. [Issue](https://github.com/framer/motion/issues/368)
+
+## [5.0.1] 2021-11-01
+
+### Added
+
+-   `onAnimationStart` is now called with the definition of the triggering animation.
+
+### Fixed
+
+-   Removing context memoisation to ensure removed values are correctly animated to.
+-   Adding unmount check to `AnimatePresence` before updating state. [PR by @ctrlplusb](https://github.com/framer/motion/pull/796)
+-   Fixing types for multi-input `useTransform`. [PR by @kena0ki](https://github.com/framer/motion/pull/843)
+-   Fixing `staggerChildren` for value-specific transitions. [Issue](https://github.com/framer/motion/issues/1081)
+-   Fixes animation between `0` and non-number/pixel keyframe array. [Issue](https://github.com/framer/motion/issues/1308)
+
+## [5.0.0] 2021-10-27
+
+### Added
+
+-   `Reorder` components to create drag-to-reorder interfaces.
+-   `LayoutGroup` allows namespacing `layoutId` and group elements that may affect each-other's layout on re-render.
+-   `layoutDependency` prop to restrict when components are measured.
+-   `layoutScroll` prop to hint to layout animations when a element is scrollable.
+-   Layout animations are auto-completed when the viewport resizes.
+-   `layout="size"` for size-only animations [PR by @bhollis](https://github.com/framer/motion/pull/1154).
+
+### Fixed
+
+-   Various layout projection improvements.
+
+### Changed
+
+-   `AnimateSharedLayout` is deprecated.
 
 ## [4.1.17] 2021-05-17
 

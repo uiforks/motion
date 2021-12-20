@@ -1,8 +1,16 @@
 import { render } from "../../../../jest.setup"
 import * as React from "react"
-import { AnimatePresence, motion, MotionConfig, useAnimation } from "../../.."
+import { act } from "react-dom/test-utils"
+import {
+    AnimatePresence,
+    motion,
+    MotionConfig,
+    LayoutGroup,
+    useAnimation,
+} from "../../.."
 import { motionValue } from "../../../value"
 import { ResolvedValues } from "../../../render/types"
+import sync from "framesync"
 
 describe("AnimatePresence", () => {
     test("Allows initial animation if no `initial` prop defined", async () => {
@@ -59,41 +67,46 @@ describe("AnimatePresence", () => {
     })
 
     test("Animates out a component when its removed", async () => {
-        const promise = new Promise<Element | null>((resolve) => {
-            const opacity = motionValue(1)
-            const Component = ({ isVisible }: { isVisible: boolean }) => {
-                return (
-                    <AnimatePresence>
-                        {isVisible && (
-                            <motion.div
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.1 }}
-                                style={{ opacity }}
-                            />
-                        )}
-                    </AnimatePresence>
-                )
-            }
+        const opacity = motionValue(1)
 
-            const { container, rerender } = render(<Component isVisible />)
-            rerender(<Component isVisible />)
+        const Component = ({ isVisible }: { isVisible: boolean }) => {
+            return (
+                <AnimatePresence>
+                    {isVisible && (
+                        <motion.div
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.1 }}
+                            style={{ opacity }}
+                        />
+                    )}
+                </AnimatePresence>
+            )
+        }
+
+        const { container, rerender } = render(<Component isVisible />)
+
+        rerender(<Component isVisible />)
+
+        await act(async () => {
             rerender(<Component isVisible={false} />)
-            rerender(<Component isVisible={false} />)
-
-            // Check it's animating out
-            setTimeout(() => {
-                expect(opacity.get()).not.toBe(1)
-                expect(opacity.get()).not.toBe(0)
-            }, 50)
-
-            // Check it's gone
-            setTimeout(() => {
-                resolve(container.firstChild as Element | null)
-            }, 150)
         })
 
-        const child = await promise
-        expect(child).toBeFalsy()
+        await act(async () => {
+            await new Promise<void>((resolve) => {
+                // Check it's animating out
+                setTimeout(() => {
+                    expect(opacity.get()).not.toBe(1)
+                    expect(opacity.get()).not.toBe(0)
+                }, 50)
+
+                //  Resolve after the animation is expected to have completed
+                setTimeout(() => {
+                    resolve()
+                }, 150)
+            })
+        })
+
+        expect(container.firstChild).toBeFalsy()
     })
 
     test("Allows nested exit animations", async () => {
@@ -129,7 +142,7 @@ describe("AnimatePresence", () => {
     })
 
     test("when: afterChildren fires correctly", async () => {
-        const promise = new Promise<number>((resolve) => {
+        const child = await new Promise<number>((resolve) => {
             const parentOpacityOutput: ResolvedValues[] = []
 
             const variants = {
@@ -171,7 +184,6 @@ describe("AnimatePresence", () => {
             rerender(<Component isVisible={false} />)
         })
 
-        const child = await promise
         expect(child).toBeGreaterThan(1)
     })
 
@@ -214,45 +226,46 @@ describe("AnimatePresence", () => {
     })
 
     test("Animates a component out after having an animation cancelled", async () => {
-        const promise = new Promise<Element | null>((resolve) => {
-            const opacity = motionValue(1)
-            const Component = ({ isVisible }: { isVisible: boolean }) => {
-                return (
-                    <AnimatePresence>
-                        {isVisible && (
-                            <motion.div
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.1 }}
-                                style={{ opacity }}
-                            />
-                        )}
-                    </AnimatePresence>
-                )
-            }
+        const opacity = motionValue(1)
+        const Component = ({ isVisible }: { isVisible: boolean }) => {
+            return (
+                <AnimatePresence>
+                    {isVisible && (
+                        <motion.div
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.1 }}
+                            style={{ opacity }}
+                        />
+                    )}
+                </AnimatePresence>
+            )
+        }
 
-            const { container, rerender } = render(<Component isVisible />)
-            rerender(<Component isVisible />)
-            rerender(<Component isVisible={false} />)
-            rerender(<Component isVisible={false} />)
-            rerender(<Component isVisible />)
-            rerender(<Component isVisible />)
-            rerender(<Component isVisible={false} />)
-            rerender(<Component isVisible={false} />)
+        const { container, rerender } = render(<Component isVisible />)
+        rerender(<Component isVisible />)
+        rerender(<Component isVisible={false} />)
+        rerender(<Component isVisible={false} />)
+        rerender(<Component isVisible />)
+        rerender(<Component isVisible />)
+        rerender(<Component isVisible={false} />)
+        rerender(<Component isVisible={false} />)
 
-            // Check it's animating out
-            setTimeout(() => {
-                expect(opacity.get()).not.toBe(1)
-                expect(opacity.get()).not.toBe(0)
-            }, 50)
+        await act(async () => {
+            await new Promise<void>((resolve) => {
+                // Check it's animating out
+                setTimeout(() => {
+                    expect(opacity.get()).not.toBe(1)
+                    expect(opacity.get()).not.toBe(0)
+                }, 50)
 
-            // Check it's gone
-            setTimeout(() => {
-                resolve(container.firstChild as Element | null)
-            }, 300)
+                //  Resolve after the animation is expected to have completed
+                setTimeout(() => {
+                    resolve()
+                }, 300)
+            })
         })
 
-        const child = await promise
-        expect(child).toBeFalsy()
+        expect(container.firstChild).toBeFalsy()
     })
 
     test("Removes a child with no animations", async () => {
@@ -336,59 +349,80 @@ describe("AnimatePresence", () => {
         return await expect(promise).resolves.toBe(1)
     })
 
+    test("Immediately remove child if no exit animations defined", async () => {
+        const promise = new Promise<HTMLElement>((resolve) => {
+            const Component = ({ i }: { i: number }) => {
+                return (
+                    <AnimatePresence exitBeforeEnter>
+                        <motion.div
+                            key={i}
+                            data-testid={i}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.5 }}
+                        />
+                    </AnimatePresence>
+                )
+            }
+
+            const { rerender, getByTestId } = render(<Component i={0} />)
+            rerender(<Component i={0} />)
+            setTimeout(() => {
+                rerender(<Component i={1} />)
+                rerender(<Component i={1} />)
+            }, 50)
+            setTimeout(() => {
+                rerender(<Component i={2} />)
+                rerender(<Component i={2} />)
+                resolve(getByTestId("2"))
+            }, 150)
+        })
+
+        return await expect(promise).resolves.toBeTruthy()
+    })
+
     test("Exit variants are triggered with `AnimatePresence.custom`, not that of the element.", async () => {
         const variants = {
             enter: { x: 0, transition: { type: false } },
             exit: (i: number) => ({ x: i * 100, transition: { type: false } }),
         }
-        const promise = new Promise((resolve) => {
-            const x = motionValue(0)
-            const Component = ({
-                isVisible,
-                onAnimationComplete,
-            }: {
-                isVisible: boolean
-                onAnimationComplete?: () => void
-            }) => {
-                return (
-                    <AnimatePresence
-                        custom={2}
-                        onExitComplete={onAnimationComplete}
-                    >
-                        {isVisible && (
-                            <motion.div
-                                custom={1}
-                                variants={variants}
-                                initial="exit"
-                                animate="enter"
-                                exit="exit"
-                                style={{ x }}
-                            />
-                        )}
-                    </AnimatePresence>
-                )
-            }
 
-            const { rerender } = render(<Component isVisible />)
-            rerender(<Component isVisible />)
+        const x = motionValue(0)
 
-            rerender(
-                <Component
-                    isVisible={false}
-                    onAnimationComplete={() => resolve(x.get())}
-                />
+        const Component = ({
+            isVisible,
+            onAnimationComplete,
+        }: {
+            isVisible: boolean
+            onAnimationComplete?: () => void
+        }) => {
+            return (
+                <AnimatePresence
+                    custom={2}
+                    onExitComplete={onAnimationComplete}
+                >
+                    {isVisible && (
+                        <motion.div
+                            custom={1}
+                            variants={variants}
+                            initial="exit"
+                            animate="enter"
+                            exit="exit"
+                            style={{ x }}
+                        />
+                    )}
+                </AnimatePresence>
             )
+        }
 
-            rerender(
-                <Component
-                    isVisible={false}
-                    onAnimationComplete={() => resolve(x.get())}
-                />
-            )
+        const { rerender } = render(<Component isVisible />)
+
+        rerender(<Component isVisible />)
+
+        await act(async () => {
+            rerender(<Component isVisible={false} />)
         })
 
-        const resolvedX = await promise
-        expect(resolvedX).toBe(200)
+        expect(x.get()).toBe(200)
     })
 
     test("Exit propagates through variants", async () => {
@@ -553,43 +587,44 @@ describe("AnimatePresence with custom components", () => {
     })
 
     test("Animates out a component when its removed", async () => {
-        const promise = new Promise<Element | null>((resolve) => {
-            const opacity = motionValue(1)
+        const opacity = motionValue(1)
 
-            const CustomComponent = () => (
-                <motion.div
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.1 }}
-                    style={{ opacity }}
-                />
+        const CustomComponent = () => (
+            <motion.div
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.1 }}
+                style={{ opacity }}
+            />
+        )
+        const Component = ({ isVisible }: { isVisible: boolean }) => {
+            return (
+                <AnimatePresence>
+                    {isVisible && <CustomComponent />}
+                </AnimatePresence>
             )
-            const Component = ({ isVisible }: { isVisible: boolean }) => {
-                return (
-                    <AnimatePresence>
-                        {isVisible && <CustomComponent />}
-                    </AnimatePresence>
-                )
-            }
+        }
 
-            const { container, rerender } = render(<Component isVisible />)
-            rerender(<Component isVisible />)
-            rerender(<Component isVisible={false} />)
-            rerender(<Component isVisible={false} />)
+        const { container, rerender } = render(<Component isVisible />)
+        rerender(<Component isVisible />)
+        rerender(<Component isVisible={false} />)
+        rerender(<Component isVisible={false} />)
 
-            // Check it's animating out
-            setTimeout(() => {
-                expect(opacity.get()).not.toBe(1)
-                expect(opacity.get()).not.toBe(0)
-            }, 50)
+        await act(async () => {
+            await new Promise<void>((resolve) => {
+                // Check it's animating out
+                setTimeout(() => {
+                    expect(opacity.get()).not.toBe(1)
+                    expect(opacity.get()).not.toBe(0)
+                }, 50)
 
-            // Check it's gone
-            setTimeout(() => {
-                resolve(container.firstChild as Element | null)
-            }, 150)
+                //  Resolve after the animation is expected to have completed
+                setTimeout(() => {
+                    resolve()
+                }, 150)
+            })
         })
 
-        const child = await promise
-        expect(child).toBeFalsy()
+        expect(container.firstChild).toBeFalsy()
     })
 
     test("Can cycle through multiple components", async () => {
@@ -635,54 +670,41 @@ describe("AnimatePresence with custom components", () => {
             exit: (i: number) => ({ x: i * 100, transition: { type: false } }),
         }
         const x = motionValue(0)
-        const promise = new Promise((resolve) => {
-            const CustomComponent = () => (
-                <motion.div
-                    custom={1}
-                    variants={variants}
-                    initial="exit"
-                    animate="enter"
-                    exit="exit"
-                    style={{ x }}
-                />
+        const CustomComponent = () => (
+            <motion.div
+                custom={1}
+                variants={variants}
+                initial="exit"
+                animate="enter"
+                exit="exit"
+                style={{ x }}
+            />
+        )
+        const Component = ({
+            isVisible,
+            onAnimationComplete,
+        }: {
+            isVisible: boolean
+            onAnimationComplete?: () => void
+        }) => {
+            return (
+                <AnimatePresence
+                    custom={2}
+                    onExitComplete={onAnimationComplete}
+                >
+                    {isVisible && <CustomComponent />}
+                </AnimatePresence>
             )
-            const Component = ({
-                isVisible,
-                onAnimationComplete,
-            }: {
-                isVisible: boolean
-                onAnimationComplete?: () => void
-            }) => {
-                return (
-                    <AnimatePresence
-                        custom={2}
-                        onExitComplete={onAnimationComplete}
-                    >
-                        {isVisible && <CustomComponent />}
-                    </AnimatePresence>
-                )
-            }
+        }
 
-            const { rerender } = render(<Component isVisible />)
-            rerender(<Component isVisible />)
+        const { rerender } = render(<Component isVisible />)
+        rerender(<Component isVisible />)
 
-            rerender(
-                <Component
-                    isVisible={false}
-                    onAnimationComplete={() => resolve(x.get())}
-                />
-            )
-
-            rerender(
-                <Component
-                    isVisible={false}
-                    onAnimationComplete={() => resolve(x.get())}
-                />
-            )
+        await act(async () => {
+            rerender(<Component isVisible={false} />)
         })
 
-        const element = await promise
-        expect(element).toBe(200)
+        expect(x.get()).toBe(200)
     })
 
     test("Exit variants are triggered with `AnimatePresence.custom` throughout the tree", async () => {
@@ -694,121 +716,154 @@ describe("AnimatePresence with custom components", () => {
         }
         const xParent = motionValue(0)
         const xChild = motionValue(0)
-        const promise = new Promise((resolve) => {
-            const CustomComponent = ({
-                children,
-                x,
-                initial,
-                animate,
-                exit,
-            }: {
-                children?: any
-                x: any
-                initial?: any
-                animate?: any
-                exit?: any
-            }) => (
-                <motion.div
-                    custom={1}
-                    variants={variants}
-                    style={{ x }}
-                    initial={initial}
-                    animate={animate}
-                    exit={exit}
+
+        const CustomComponent = ({
+            children,
+            x,
+            initial,
+            animate,
+            exit,
+        }: {
+            children?: any
+            x: any
+            initial?: any
+            animate?: any
+            exit?: any
+        }) => (
+            <motion.div
+                custom={1}
+                variants={variants}
+                style={{ x }}
+                initial={initial}
+                animate={animate}
+                exit={exit}
+            >
+                {children}
+            </motion.div>
+        )
+        const Component = ({
+            isVisible,
+            onAnimationComplete,
+        }: {
+            isVisible: boolean
+            onAnimationComplete?: () => void
+        }) => {
+            return (
+                <AnimatePresence
+                    custom={2}
+                    onExitComplete={onAnimationComplete}
                 >
-                    {children}
-                </motion.div>
+                    {isVisible && (
+                        <CustomComponent
+                            x={xParent}
+                            initial="exit"
+                            animate="enter"
+                            exit="exit"
+                        >
+                            <CustomComponent x={xChild} />
+                        </CustomComponent>
+                    )}
+                </AnimatePresence>
             )
-            const Component = ({
-                isVisible,
-                onAnimationComplete,
-            }: {
-                isVisible: boolean
-                onAnimationComplete?: () => void
-            }) => {
-                return (
-                    <AnimatePresence
-                        custom={2}
-                        onExitComplete={onAnimationComplete}
-                    >
-                        {isVisible && (
-                            <CustomComponent
-                                x={xParent}
-                                initial="exit"
-                                animate="enter"
-                                exit="exit"
-                            >
-                                <CustomComponent x={xChild} />
-                            </CustomComponent>
-                        )}
-                    </AnimatePresence>
-                )
-            }
+        }
 
-            const { rerender } = render(<Component isVisible />)
+        const { rerender } = render(<Component isVisible />)
+
+        await act(async () => {
             rerender(<Component isVisible />)
-
-            rerender(
-                <Component
-                    isVisible={false}
-                    onAnimationComplete={() =>
-                        resolve([xParent.get(), xChild.get()])
-                    }
-                />
-            )
-
-            rerender(
-                <Component
-                    isVisible={false}
-                    onAnimationComplete={() =>
-                        resolve([xParent.get(), xChild.get()])
-                    }
-                />
-            )
         })
 
-        const latest = await promise
-        expect(latest).toEqual([200, 200])
+        await act(async () => {
+            rerender(<Component isVisible={false} />)
+        })
+
+        expect([xParent.get(), xChild.get()]).toEqual([200, 200])
     })
 
     test("Exit propagates through variants", async () => {
         const variants = {
-            enter: { opacity: 1 },
-            exit: { opacity: 0 },
+            enter: { opacity: 1, transition: { type: false } },
+            exit: { opacity: 0, transition: { type: false } },
+        }
+        const opacity = motionValue(1)
+
+        const Component = ({ isVisible }: { isVisible: boolean }) => {
+            return (
+                <AnimatePresence>
+                    {isVisible && (
+                        <motion.div
+                            initial="enter"
+                            animate="enter"
+                            exit="exit"
+                            variants={variants}
+                        >
+                            <motion.div variants={variants}>
+                                <motion.div
+                                    variants={variants}
+                                    style={{ opacity }}
+                                />
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            )
         }
 
-        const promise = new Promise<number>((resolve) => {
-            const opacity = motionValue(1)
-            const Component = ({ isVisible }: { isVisible: boolean }) => {
-                return (
+        const { rerender } = render(<Component isVisible />)
+        rerender(<Component isVisible={false} />)
+        await act(async () => {
+            rerender(<Component isVisible={false} />)
+        })
+
+        expect(opacity.get()).toBe(0)
+    })
+
+    test("Sibling AnimatePresence wrapped in LayoutGroup remove exiting elements", async () => {
+        const opacity = motionValue(1)
+
+        const Component = ({ isVisible }: { isVisible: boolean }) => {
+            return (
+                <LayoutGroup>
                     <AnimatePresence>
                         {isVisible && (
                             <motion.div
-                                initial="exit"
-                                animate="enter"
-                                exit="exit"
-                                variants={variants}
-                            >
-                                <motion.div variants={variants}>
-                                    <motion.div
-                                        variants={variants}
-                                        style={{ opacity }}
-                                    />
-                                </motion.div>
-                            </motion.div>
+                                data-testid="a"
+                                exit={{ opacity: 0 }}
+                                transition={{ type: false }}
+                                style={{ opacity }}
+                            />
                         )}
                     </AnimatePresence>
-                )
-            }
+                    <AnimatePresence>
+                        {isVisible && (
+                            <motion.div
+                                data-testid="b"
+                                exit={{ opacity: 0 }}
+                                transition={{ type: false }}
+                                style={{ opacity }}
+                            />
+                        )}
+                    </AnimatePresence>
+                </LayoutGroup>
+            )
+        }
 
-            const { rerender } = render(<Component isVisible />)
-            rerender(<Component isVisible />)
-            rerender(<Component isVisible={false} />)
-            rerender(<Component isVisible={false} />)
+        const { rerender, queryByTestId } = render(<Component isVisible />)
 
-            resolve(opacity.get())
+        rerender(<Component isVisible />)
+
+        await act(async () => {
+            rerender(<Component isVisible={false} />)
         })
 
-        return await expect(promise).resolves.toBe(0)
+        await act(async () => {
+            await new Promise<void>((resolve) => {
+                sync.postRender(() => {
+                    expect(queryByTestId("a")).toBe(null)
+                    expect(queryByTestId("b")).toBe(null)
+                    resolve()
+                })
+            })
+        })
     })
 })

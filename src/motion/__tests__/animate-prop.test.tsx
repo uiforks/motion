@@ -305,6 +305,25 @@ describe("animate prop as object", () => {
         )
     })
 
+    test("converts unseen zero unit types to number", async () => {
+        const promise = new Promise<ChildNode>((resolve) => {
+            const Component = () => (
+                <motion.div
+                    animate={{ borderRadius: 20 }}
+                    transition={{ duration: 0.01 }}
+                    onAnimationComplete={() => {
+                        resolve(container.firstChild as ChildNode)
+                    }}
+                    style={{ borderRadius: "0px" }}
+                />
+            )
+            const { container, rerender } = render(<Component />)
+            rerender(<Component />)
+        })
+
+        return expect(promise).resolves.toHaveStyle("border-radius: 20px")
+    })
+
     test("animates previously unseen CSS variables", async () => {
         const promise = new Promise<string>((resolve) => {
             const Component = () => (
@@ -319,7 +338,7 @@ describe("animate prop as object", () => {
             rerender(<Component />)
         })
 
-        expect(promise).resolves.toBe("#000")
+        return expect(promise).resolves.toBe("#000")
     })
 
     test("forces an animation to fallback if has been set to `null`", async () => {
@@ -411,5 +430,105 @@ describe("animate prop as object", () => {
             <motion.div animate={{ pathOffset: 1, pathSpacing: 1 }} />
         )
         render(<Component />)
+    })
+
+    test("Correctly animates from RGB to HSLA", async () => {
+        const element = await new Promise<HTMLDivElement>((resolve) => {
+            const Component = () => {
+                const ref = React.useRef<HTMLDivElement>(null)
+                return (
+                    <motion.div
+                        ref={ref}
+                        initial={{ backgroundColor: "rgb(0, 153, 255)" }}
+                        animate={{ backgroundColor: "hsl(345, 100%, 60%)" }}
+                        onAnimationComplete={() =>
+                            ref.current && resolve(ref.current)
+                        }
+                        transition={{ duration: 0.01 }}
+                    />
+                )
+            }
+            const { rerender } = render(<Component />)
+            rerender(<Component />)
+        })
+
+        return expect(element).toHaveStyle(
+            "background-color: rgba(255, 51, 102, 1)"
+        )
+    })
+
+    test("Correctly animates from HEX to HSLA", async () => {
+        const element = await new Promise<HTMLDivElement>((resolve) => {
+            const Component = () => {
+                const ref = React.useRef<HTMLDivElement>(null)
+                return (
+                    <motion.div
+                        ref={ref}
+                        initial={{ backgroundColor: "#0088ff" }}
+                        animate={{ backgroundColor: "hsl(345, 100%, 60%)" }}
+                        onAnimationComplete={() =>
+                            ref.current && resolve(ref.current)
+                        }
+                        transition={{ duration: 0.01 }}
+                    />
+                )
+            }
+            const { rerender } = render(<Component />)
+            rerender(<Component />)
+        })
+
+        return expect(element).toHaveStyle(
+            "background-color: rgba(255, 51, 102, 1)"
+        )
+    })
+
+    test("Correctly animates from HSLA to Hex", async () => {
+        const element = await new Promise<HTMLDivElement>((resolve) => {
+            const Component = () => {
+                const ref = React.useRef<HTMLDivElement>(null)
+                return (
+                    <motion.div
+                        ref={ref}
+                        initial={{ backgroundColor: "hsla(345, 100%, 60%, 1)" }}
+                        animate={{ backgroundColor: "#0088ff" }}
+                        onAnimationComplete={() =>
+                            ref.current && resolve(ref.current)
+                        }
+                        transition={{ duration: 0.01 }}
+                    />
+                )
+            }
+            const { rerender } = render(<Component />)
+            rerender(<Component />)
+        })
+
+        return expect(element).toHaveStyle(
+            "background-color: rgba(0, 136, 255, 1)"
+        )
+    })
+
+    test("Correctly animates from HSLA to RGB", async () => {
+        const element = await new Promise<HTMLDivElement>((resolve) => {
+            const Component = () => {
+                const ref = React.useRef<HTMLDivElement>(null)
+                return (
+                    <motion.div
+                        ref={ref}
+                        initial={{ backgroundColor: "hsla(345, 100%, 60%, 1)" }}
+                        animate={{ backgroundColor: "rgba(0, 136, 255, 1)" }}
+                        onAnimationComplete={() =>
+                            ref.current && resolve(ref.current)
+                        }
+                        transition={{ duration: 0.01 }}
+                    />
+                )
+            }
+            const { rerender } = render(<Component />)
+            rerender(<Component />)
+        })
+
+        return expect(element).toHaveStyle(
+            "background-color: rgba(0, 136, 255, 1)"
+        )
     })
 })

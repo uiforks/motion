@@ -1,7 +1,7 @@
 const path = require("path")
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
-const convertPathsToAliases = require("convert-tsconfig-paths-to-webpack-aliases")
-    .default
+const convertPathsToAliases =
+    require("convert-tsconfig-paths-to-webpack-aliases").default
 const chalk = require("chalk")
 const tsconfig = require("../../tsconfig.json")
 const webpack = require("webpack")
@@ -15,7 +15,7 @@ const tsLoader = {
 const DEV_SERVER_PORT = 9990
 
 console.log(
-    chalk.bold.green(`\nRunning at: http://0.0.0.0:${DEV_SERVER_PORT}/\n`)
+    chalk.bold.green(`\nRunning at: http://localhost:${DEV_SERVER_PORT}/\n`)
 )
 
 module.exports = {

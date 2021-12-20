@@ -6,10 +6,9 @@ import { makeUseVisualState } from "../../motion/utils/use-visual-state"
 import { createSvgRenderState } from "./utils/create-render-state"
 import { buildSVGAttrs } from "./utils/build-attrs"
 
-export const svgMotionConfig: Partial<MotionComponentConfig<
-    SVGElement,
-    SVGRenderState
->> = {
+export const svgMotionConfig: Partial<
+    MotionComponentConfig<SVGElement, SVGRenderState>
+> = {
     useVisualState: makeUseVisualState({
         scrapeMotionValuesFromProps: scrapeSVGProps,
         createRenderState: createSvgRenderState,
@@ -30,15 +29,9 @@ export const svgMotionConfig: Partial<MotionComponentConfig<
                 }
             }
 
-            if (isPath(instance)) {
-                renderState.totalPathLength = instance.getTotalLength()
-            }
-
             buildSVGAttrs(
                 renderState,
                 latestValues,
-                undefined,
-                undefined,
                 { enableHardwareAcceleration: false },
                 props.transformTemplate
             )
@@ -47,10 +40,4 @@ export const svgMotionConfig: Partial<MotionComponentConfig<
             renderSVG(instance, renderState)
         },
     }),
-}
-
-function isPath(
-    element: SVGElement | SVGPathElement
-): element is SVGPathElement {
-    return element.tagName === "path"
 }

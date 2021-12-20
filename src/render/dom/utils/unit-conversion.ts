@@ -4,9 +4,9 @@ import { isKeyframesTarget } from "../../../animation/utils/is-keyframes-target"
 import { invariant } from "hey-listen"
 import { MotionValue } from "../../../value"
 import { transformProps } from "../../html/utils/transform"
-import { AxisBox2D } from "../../../types/geometry"
-import { VisualElement } from "../../types"
+import { ResolvedValues, VisualElement } from "../../types"
 import { findDimensionValueType } from "../value-types/dimensions"
+import { Box } from "../../../projection/geometry/types"
 
 const positionalKeys = new Set([
     "width",
@@ -43,32 +43,31 @@ export enum BoundingBoxDimension {
 }
 
 type GetActualMeasurementInPixels = (
-    bbox: AxisBox2D,
+    bbox: Box,
     computedStyle: Partial<CSSStyleDeclaration>
 ) => number
 
 const getPosFromMatrix = (matrix: string, pos: number) =>
     parseFloat(matrix.split(", ")[pos])
 
-const getTranslateFromMatrix = (
-    pos2: number,
-    pos3: number
-): GetActualMeasurementInPixels => (_bbox, { transform }) => {
-    if (transform === "none" || !transform) return 0
+const getTranslateFromMatrix =
+    (pos2: number, pos3: number): GetActualMeasurementInPixels =>
+    (_bbox, { transform }) => {
+        if (transform === "none" || !transform) return 0
 
-    const matrix3d = transform.match(/^matrix3d\((.+)\)$/)
+        const matrix3d = transform.match(/^matrix3d\((.+)\)$/)
 
-    if (matrix3d) {
-        return getPosFromMatrix(matrix3d[1], pos3)
-    } else {
-        const matrix = transform.match(/^matrix\((.+)\)$/) as string[]
-        if (matrix) {
-            return getPosFromMatrix(matrix[1], pos2)
+        if (matrix3d) {
+            return getPosFromMatrix(matrix3d[1], pos3)
         } else {
-            return 0
+            const matrix = transform.match(/^matrix\((.+)\)$/) as string[]
+            if (matrix) {
+                return getPosFromMatrix(matrix[1], pos2)
+            } else {
+                return 0
+            }
         }
     }
-}
 
 const transformKeys = new Set(["x", "y", "z"])
 const nonTranslationalTransformKeys = transformProps.filter(
@@ -80,9 +79,8 @@ function removeNonTranslationalTransform(visualElement: VisualElement) {
     const removedTransforms: RemovedTransforms = []
 
     nonTranslationalTransformKeys.forEach((key) => {
-        const value:
-            | MotionValue<string | number>
-            | undefined = visualElement.getValue(key)
+        const value: MotionValue<string | number> | undefined =
+            visualElement.getValue(key)
         if (value !== undefined) {
             removedTransforms.push([key, value.get()])
             value.set(key.startsWith("scale") ? 1 : 0)
@@ -95,20 +93,24 @@ function removeNonTranslationalTransform(visualElement: VisualElement) {
     return removedTransforms
 }
 
-const positionalValues: { [key: string]: GetActualMeasurementInPixels } = {
-    // Dimensions
-    width: ({ x }) => x.max - x.min,
-    height: ({ y }) => y.max - y.min,
+export const positionalValues: { [key: string]: GetActualMeasurementInPixels } =
+    {
+        // Dimensions
+        width: ({ x }, { paddingLeft = "0", paddingRight = "0" }) =>
+            x.max - x.min - parseFloat(paddingLeft) - parseFloat(paddingRight),
+        height: ({ y }, { paddingTop = "0", paddingBottom = "0" }) =>
+            y.max - y.min - parseFloat(paddingTop) - parseFloat(paddingBottom),
 
-    top: (_bbox, { top }) => parseFloat(top as string),
-    left: (_bbox, { left }) => parseFloat(left as string),
-    bottom: ({ y }, { top }) => parseFloat(top as string) + (y.max - y.min),
-    right: ({ x }, { left }) => parseFloat(left as string) + (x.max - x.min),
+        top: (_bbox, { top }) => parseFloat(top as string),
+        left: (_bbox, { left }) => parseFloat(left as string),
+        bottom: ({ y }, { top }) => parseFloat(top as string) + (y.max - y.min),
+        right: ({ x }, { left }) =>
+            parseFloat(left as string) + (x.max - x.min),
 
-    // Transform
-    x: getTranslateFromMatrix(4, 13),
-    y: getTranslateFromMatrix(5, 14),
-}
+        // Transform
+        x: getTranslateFromMatrix(4, 13),
+        y: getTranslateFromMatrix(5, 14),
+    }
 
 const convertChangedValueTypes = (
     target: TargetWithKeyframes,
@@ -118,15 +120,8 @@ const convertChangedValueTypes = (
     const originBbox = visualElement.measureViewportBox()
     const element = visualElement.getInstance()
     const elementComputedStyle = getComputedStyle(element)
-    const {
-        display,
-        top,
-        left,
-        bottom,
-        right,
-        transform,
-    } = elementComputedStyle
-    const originComputedStyle = { top, left, bottom, right, transform }
+    const { display } = elementComputedStyle
+    const origin: ResolvedValues = {}
 
     // If the element is currently set to display: "none", make it visible before
     // measuring the target bounding box
@@ -137,6 +132,13 @@ const convertChangedValueTypes = (
         )
     }
 
+    /**
+     * Record origins before we render and update styles
+     */
+    changedKeys.forEach((key) => {
+        origin[key] = positionalValues[key](originBbox, elementComputedStyle)
+    })
+
     // Apply the latest values (as set in checkAndConvertChangedValueTypes)
     visualElement.syncRender()
 
@@ -146,10 +148,8 @@ const convertChangedValueTypes = (
         // Restore styles to their **calculated computed style**, not their actual
         // originally set style. This allows us to animate between equivalent pixel units.
         const value = visualElement.getValue(key) as MotionValue
-        setAndResetVelocity(
-            value,
-            positionalValues[key](originBbox, originComputedStyle)
-        )
+
+        setAndResetVelocity(value, origin[key])
         target[key] = positionalValues[key](targetBbox, elementComputedStyle)
     })
 
@@ -180,9 +180,9 @@ const checkAndConvertChangedValueTypes = (
         >
         if (!visualElement.hasValue(key)) return
 
-        const from = origin[key]
+        let from = origin[key]
+        let fromType = findDimensionValueType(from)
         const to = target[key]
-        const fromType = findDimensionValueType(from)
         let toType
 
         // TODO: The current implementation of this basically throws an error
@@ -191,8 +191,11 @@ const checkAndConvertChangedValueTypes = (
         // as it'd be doing multiple resize-remeasure operations.
         if (isKeyframesTarget(to)) {
             const numKeyframes = to.length
+            const fromIndex = to[0] === null ? 1 : 0
+            from = to[fromIndex]
+            fromType = findDimensionValueType(from)
 
-            for (let i = to[0] === null ? 1 : 0; i < numKeyframes; i++) {
+            for (let i = fromIndex; i < numKeyframes; i++) {
                 if (!toType) {
                     toType = findDimensionValueType(to[i])
 
@@ -241,9 +244,8 @@ const checkAndConvertChangedValueTypes = (
                 // If we're going to do value conversion via DOM measurements, we first
                 // need to remove non-positional transform values that could affect the bbox measurements.
                 if (!hasAttemptedToRemoveTransformValues) {
-                    removedTransformValues = removeNonTranslationalTransform(
-                        visualElement
-                    )
+                    removedTransformValues =
+                        removeNonTranslationalTransform(visualElement)
                     hasAttemptedToRemoveTransformValues = true
                 }
 

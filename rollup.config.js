@@ -37,6 +37,23 @@ const umd = Object.assign({}, config, {
     ],
 })
 
+const projection = Object.assign({}, config, {
+    input: "lib/projection/index.js",
+    output: {
+        file: `dist/projection.dev.js`,
+        format: "umd",
+        name: "Projection",
+        exports: "named",
+    },
+    plugins: [
+        resolve(),
+        replace({
+            "process.env.NODE_ENV": JSON.stringify("development"),
+        }),
+    ],
+    external: ["react", "react-dom"],
+})
+
 const umdProd = Object.assign({}, umd, {
     output: Object.assign({}, umd.output, {
         file: `dist/${pkg.name}.js`,
@@ -52,8 +69,10 @@ const umdProd = Object.assign({}, umd, {
 })
 
 const cjs = Object.assign({}, config, {
+    input: ["lib/index.js", "lib/three-entry.js"],
     output: {
-        file: `dist/${pkg.name}.cjs.js`,
+        entryFileNames: `[name].js`,
+        dir: "dist/cjs",
         format: "cjs",
         exports: "named",
     },
@@ -62,7 +81,9 @@ const cjs = Object.assign({}, config, {
 })
 
 const es = Object.assign({}, config, {
+    input: ["lib/index.js", "lib/three-entry.js"],
     output: {
+        entryFileNames: "[name].mjs",
         format: "es",
         exports: "named",
         preserveModules: true,
@@ -72,6 +93,14 @@ const es = Object.assign({}, config, {
     external,
 })
 
+const sizePlugins = [
+    resolve(),
+    replace({
+        "process.env.NODE_ENV": JSON.stringify("production"),
+    }),
+    terser({ output: { comments: false } }),
+]
+
 const m = Object.assign({}, es, {
     input: "lib/render/dom/motion-minimal.js",
     output: Object.assign({}, es.output, {
@@ -79,13 +108,12 @@ const m = Object.assign({}, es, {
         preserveModules: false,
         dir: undefined,
     }),
-    plugins: [resolve(), terser({ output: { comments: false } })],
+    plugins: sizePlugins,
     external: ["react", "react-dom"],
 })
 
 const domAnimation = Object.assign({}, es, {
     input: {
-        "size-rollup-dom-animation-m": "lib/render/dom/motion-minimal.js",
         "size-rollup-dom-animation": "lib/render/dom/features-animation.js",
     },
     output: {
@@ -96,21 +124,20 @@ const domAnimation = Object.assign({}, es, {
         chunkFileNames: "size-rollup-dom-animation-assets.js",
         dir: `dist`,
     },
-    plugins: [resolve(), terser({ output: { comments: false } })],
+    plugins: sizePlugins,
     external: ["react", "react-dom"],
 })
 
 const domMax = Object.assign({}, es, {
     input: {
-        "size-rollup-dom-max-m": "lib/render/dom/motion-minimal.js",
         "size-rollup-dom-max": "lib/render/dom/features-max.js",
     },
     output: {
         ...domAnimation.output,
         chunkFileNames: "size-rollup-dom-max-assets.js",
     },
-    plugins: [resolve(), terser({ output: { comments: false } })],
+    plugins: sizePlugins,
     external: ["react", "react-dom"],
 })
 
-export default [umd, umdProd, cjs, es, m, domAnimation, domMax]
+export default [projection, umd, umdProd, cjs, es, m, domAnimation, domMax]

@@ -28,10 +28,6 @@ export const App = () => {
         <motion.svg
             initial={false}
             animate={isChecked ? "checked" : "unchecked"}
-            variants={{
-                checked: { viewBox: "-220 -200 440 440" },
-                unchecked: { viewBox: "0 0 440 440" },
-            }}
             whileHover="hover"
             whileTap="pressed"
             width="440"
@@ -41,7 +37,7 @@ export const App = () => {
             <motion.path
                 d="M 72 136 C 72 100.654 100.654 72 136 72 L 304 72 C 339.346 72 368 100.654 368 136 L 368 304 C 368 339.346 339.346 368 304 368 L 136 368 C 100.654 368 72 339.346 72 304 Z"
                 fill="transparent"
-                strokeWidth="50"
+                strokeWidth={50}
                 stroke="#FF008C"
                 variants={boxVariants}
             />

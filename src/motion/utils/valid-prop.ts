@@ -19,9 +19,8 @@ const validMotionProps = new Set<keyof MotionProps>([
     "inherit",
     "layout",
     "layoutId",
-    "_layoutResetTransform",
+    "layoutDependency",
     "onLayoutAnimationComplete",
-    "onViewportBoxUpdate",
     "onLayoutMeasure",
     "onBeforeLayoutMeasure",
     "onAnimationStart",
@@ -38,6 +37,7 @@ const validMotionProps = new Set<keyof MotionProps>([
     "dragListener",
     "dragConstraints",
     "dragDirectionLock",
+    "dragSnapToOrigin",
     "_dragX",
     "_dragY",
     "dragElastic",
@@ -57,6 +57,11 @@ const validMotionProps = new Set<keyof MotionProps>([
     "whileFocus",
     "whileTap",
     "whileHover",
+    "whileInView",
+    "onViewportEnter",
+    "onViewportLeave",
+    "viewport",
+    "layoutScroll",
 ])
 
 /**

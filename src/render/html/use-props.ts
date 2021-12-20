@@ -30,8 +30,6 @@ function useInitialMotionValues(
         buildHTMLStyles(
             state,
             visualState,
-            undefined,
-            undefined,
             { enableHardwareAcceleration: !isStatic },
             transformTemplate
         )
@@ -72,13 +70,15 @@ export function useHTMLProps(
     const htmlProps: any = {}
     const style = useStyle(props, visualState, isStatic)
 
-    if (Boolean(props.drag)) {
+    if (Boolean(props.drag) && props.dragListener !== false) {
         // Disable the ghost element when a user drags
         htmlProps.draggable = false
 
         // Disable text selection
-        style.userSelect = style.WebkitUserSelect = style.WebkitTouchCallout =
-            "none"
+        style.userSelect =
+            style.WebkitUserSelect =
+            style.WebkitTouchCallout =
+                "none"
 
         // Disable scrolling on the draggable direction
         style.touchAction =
